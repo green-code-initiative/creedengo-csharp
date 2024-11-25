@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<Title>Creedengo.Tests</Title>
 		<Product>Creedengo.Tests</Product>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<IsTestProject>true</IsTestProject>
 		<NoWarn>$(NoWarn);1591;CA1515</NoWarn>
 	</PropertyGroup>
