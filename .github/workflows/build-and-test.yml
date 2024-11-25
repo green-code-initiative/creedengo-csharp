@@ -29,7 +29,7 @@ jobs:
   
     - uses: danielpalme/ReportGenerator-GitHub-Action@5.3.8
       with:
-        reports: '/home/runner/work/ecoCode-csharp/ecoCode-csharp/src/EcoCode.Tests/coverage.cobertura.xml'
+        reports: '/home/runner/work/Creedengo-csharp/Creedengo-csharp/src/Creedengo.Tests/coverage.cobertura.xml'
         targetdir: 'CoverageReports'
         historydir: 'CoverageHistory'
         reporttypes: 'HtmlInline;Cobertura'

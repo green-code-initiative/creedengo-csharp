@@ -2,8 +2,8 @@
 	<PropertyGroup>
 		<Authors>Green Code Initiative</Authors>
 		<Company>Green Code Initiative</Company>
-		<Description>A set of Roslyn analyzers implementing the ecoCode rules for scanning your C# projects and reducing your code environmental footprint.</Description>
-		<Copyright>Copyright EcoCode © 2024</Copyright>
+		<Description>A set of Roslyn analyzers implementing the Creedengo rules for scanning your C# projects and reducing your code environmental footprint.</Description>
+		<Copyright>Copyright Creedengo © 2024</Copyright>
 
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<IsPackable>false</IsPackable>
@@ -39,6 +39,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)\src\EcoCode.Package\EcoCode.globalconfig" />
+		<GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)\src\Creedengo.Package\Creedengo.globalconfig" />
 	</ItemGroup>
 </Project>

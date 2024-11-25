@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Tool Html": {
+      "commandName": "Project",
+      "commandLineArgs": "analyze \"C:\\Users\\vlajoumard\\source\\Creedengo-csharp-test-project\\Creedengo-csharp-test-project.sln\" \"C:\\Users\\vlajoumard\\source\\Creedengo-csharp-test-project\\Creedengo-csharp-test-project.html\""
+    }
+  }
+}

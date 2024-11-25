@@ -1,39 +1,39 @@
-﻿[![EcoCode on NuGet](https://img.shields.io/nuget/v/EcoCode.svg)](https://www.nuget.org/packages/EcoCode/) [![EcoCode on NuGet](https://img.shields.io/nuget/dt/EcoCode)](https://www.nuget.org/packages/EcoCode/)
+﻿[![Creedengo on NuGet](https://img.shields.io/nuget/v/Creedengo.svg)](https://www.nuget.org/packages/Creedengo/) [![Creedengo on NuGet](https://img.shields.io/nuget/dt/Creedengo)](https://www.nuget.org/packages/Creedengo/)
 
-EcoCode-C#
+Creedengo-C#
 ===========
 
-_ecoCode_ is a collective project aiming to reduce environmental footprint of software at the code level. The goal of the project is to provide a list of static code analyzers to highlight code structures that may have a negative ecological impact: energy and resources over-consumption, "fatware", shortening terminals' lifespan, etc.
+_Creedengo_ is a collective project aiming to reduce environmental footprint of software at the code level. The goal of the project is to provide a list of static code analyzers to highlight code structures that may have a negative ecological impact: energy and resources over-consumption, "fatware", shortening terminals' lifespan, etc.
 
-_ecoCode_ is based on evolving catalogs of [good practices](https://github.com/green-code-initiative/ecoCode/blob/main/docs/rules), for various technologies. This set of Roslyn analyzers implements these catalogs as rules for scanning your C# projects.
+_Creedengo_ is based on evolving catalogs of [good practices](https://github.com/green-code-initiative/ecoCode/blob/main/docs/rules), for various technologies. This set of Roslyn analyzers implements these catalogs as rules for scanning your C# projects.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/green-code-initiative/ecoCode-common/blob/main/doc/CODE_OF_CONDUCT.md)
 
 🚀 Getting Started
 ------------------
 
-There are several ways you can use the ecoCode C# analyzers in your .Net projects:
+There are several ways you can use the Creedengo C# analyzers in your .Net projects:
 1. As a [NuGet package](#nugetPackage)
 2. As a [.NET tool](#dotnetTool)
 3. As an [analyzer for SonarQube](#sonarQube).
 
 <a name="nugetPackage"></a>🧩 NuGet package
 -----------------
-The package is available on nuget.org at this address : https://www.nuget.org/packages/EcoCode, and can be added to your projects/solutions like any NuGet package. Once referenced and restored, the ecoCode analyzers are automatically integrated in your IDE/compilation process, and will list any applicable info/alert.
+The package is available on nuget.org at this address : https://www.nuget.org/packages/Creedengo, and can be added to your projects/solutions like any NuGet package. Once referenced and restored, the Creedengo analyzers are automatically integrated in your IDE/compilation process, and will list any applicable info/alert.
 
 Pre-requisite : .Net Standard 2.0, which can be used in a wide range of projects. See [Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version) for details about the supported Frameworks.
 
 <a name="dotnetTool"></a>🧩 .Net tool
 -----------------
-The .Net tool is available on nuget.org at this address : https://www.nuget.org/packages/EcoCode.Tool, and can be fetched on your machine using the following command :
+The .Net tool is available on nuget.org at this address : https://www.nuget.org/packages/Creedengo.Tool, and can be fetched on your machine using the following command :
 
-`dotnet tool install --global EcoCode.Tool`
+`dotnet tool install --global Creedengo.Tool`
 
 See [.Net tools documentation](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools) for additional information.
 
 Once installed, you can launch an analyzis on an existing codebase like this :
 
-`ecocode-cli analyze path/to/mySolution.sln path/to/myReport.html`.
+`creedengo-cli analyze path/to/mySolution.sln path/to/myReport.html`.
 
 The file to analyze can be a .sln, a .slnx or a .csproj. The report format depends on it's required extension, the following are currently supported : .html, .json and .csv.
 
@@ -41,9 +41,9 @@ Pre-requisite : .Net 8 SDK.
 
 <a name="sonarQube"></a>🧩 Analyzer for SonarQube
 -----------------
-EcoCode C# can use [SonarScanner for .Net](https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/scanners/sonarscanner-for-dotnet/) to integrate with [SonarQube](https://www.sonarsource.com/products/sonarqube/), and uses a custom import addition to enrich what is reported to Sonar (severity, description, url page, category, and so on). See our [dedicated repository](https://github.com/green-code-initiative/ecoCode-csharp-sonarqube) for more information.
+Creedengo C# can use [SonarScanner for .Net](https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/scanners/sonarscanner-for-dotnet/) to integrate with [SonarQube](https://www.sonarsource.com/products/sonarqube/), and uses a custom import addition to enrich what is reported to Sonar (severity, description, url page, category, and so on). See our [dedicated repository](https://github.com/green-code-initiative/creedengo-csharp-sonarqube) for more information.
 
-🌿 EcoCode Rules
+🌿 Creedengo Rules
 -------------------
 
 |Id|Description|Severity|Code fix|
@@ -66,7 +66,7 @@ EcoCode C# can use [SonarScanner for .Net](https://docs.sonarsource.com/sonarqub
 🌿 Customized Roslyn Rules
 -------------------
 
-EcoCode C# customizes the severity of the following native Roslyn rules.
+Creedengo C# customizes the severity of the following native Roslyn rules.
 
 |Id|Description|Old Severity|New Severity|
 |--|-----------|:----------:|:----------:|
@@ -124,9 +124,9 @@ EcoCode C# customizes the severity of the following native Roslyn rules.
 🤝 Contribution
 ---------------
 
-See [contribution](https://github.com/green-code-initiative/ecoCode#-contribution) on the central ecoCode repository.
+See [contribution](https://github.com/green-code-initiative/ecoCode#-contribution) on the central Creedengo repository.
 
 🤓 Main contributors
 --------------------
 
-See [main contributors](https://github.com/green-code-initiative/ecoCode#-main-contributors) on the central ecoCode repository.
+See [main contributors](https://github.com/green-code-initiative/ecoCode#-main-contributors) on the central Creedengo repository.

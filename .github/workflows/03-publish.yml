@@ -20,7 +20,7 @@ jobs:
         key: cache-${{ github.sha }}
         enableCrossOsArchive: true
 
-    - run: echo "PACKAGE=$(find . -name 'EcoCode.${{ inputs.tag }}.nupkg' | head -n 1)" >> $GITHUB_ENV
+    - run: echo "PACKAGE=$(find . -name 'Creedengo.${{ inputs.tag }}.nupkg' | head -n 1)" >> $GITHUB_ENV
   
     - run: dotnet nuget push ${{ env.PACKAGE }} -k "${{ secrets.nuget-api-key }}" -s https://api.nuget.org/v3/index.json
   
@@ -33,6 +33,6 @@ jobs:
         key: cache-${{ github.sha }}
         enableCrossOsArchive: true
 
-    - run: echo "PACKAGE=$(find . -name 'EcoCode.Tool.${{ inputs.tag }}.nupkg' | head -n 1)" >> $GITHUB_ENV
+    - run: echo "PACKAGE=$(find . -name 'Creedengo.Tool.${{ inputs.tag }}.nupkg' | head -n 1)" >> $GITHUB_ENV
   
     - run: dotnet nuget push ${{ env.PACKAGE }} -k "${{ secrets.nuget-api-key }}" -s https://api.nuget.org/v3/index.json

@@ -1,0 +1,85 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+
+		<IsPackable>true</IsPackable>
+		<PackAsTool>true</PackAsTool>
+		<EnablePackageValidation>true</EnablePackageValidation>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
+
+		<Title>Creedengo.Tool</Title>
+		<Product>Creedengo.Tool</Product>
+		<PackageId>Creedengo.Tool</PackageId>
+		<ToolCommandName>Creedengo</ToolCommandName>
+
+		<PackageProjectUrl>https://github.com/green-code-initiative/creedengo-csharp</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/green-code-initiative/creedengo-csharp</RepositoryUrl>
+		<PackageIcon>icon.jpeg</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>Creedengo, EcoCode, Analyzers, Environment</PackageTags>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
+
+		<NoWarn>${NoWarn};CA1031;CA1812</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Container\**" />
+		<Compile Remove="publish\**" />
+		<EmbeddedResource Remove="Container\**" />
+		<EmbeddedResource Remove="publish\**" />
+		<None Remove="Container\**" />
+		<None Remove="publish\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\..\icon.jpeg" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\NOTICE.md" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="..\..\Creedengo.globalconfig" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all" ExcludeAssets="compile" />
+		<PackageReference Include="Microsoft.Build" PrivateAssets="all" ExcludeAssets="compile; runtime">
+		  <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Build.Locator" />
+		<PackageReference Include="Microsoft.CodeAnalysis" />
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="Microsoft.Extensions.Logging" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" ExcludeAssets="compile" />
+		<PackageReference Include="Roslynator.Analyzers" PrivateAssets="all" ExcludeAssets="compile; runtime" />
+		<PackageReference Include="Spectre.Console" />
+		<PackageReference Include="Spectre.Console.Cli" />
+		<PackageReference Include="System.Formats.Asn1" />
+		<PackageReference Include="System.Text.Json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Creedengo.Core\Creedengo.Core.csproj" />
+	</ItemGroup>
+
+	<Target Name="PostPublishCleanup" AfterTargets="Publish">
+		<RemoveDir Directories="$(PublishDir)/BuildHost-net472" />
+	</Target>
+
+	<Target Name="CopyNetAnalyzers" AfterTargets="Restore" BeforeTargets="Build">
+		<ItemGroup>
+			<AnalyzerAssemblies Include="$(NuGetPackageRoot)Microsoft.CodeAnalysis.NetAnalyzers\**\Microsoft.CodeAnalysis.NetAnalyzers.dll" />
+			<AnalyzerAssemblies Include="$(NuGetPackageRoot)Microsoft.CodeAnalysis.NetAnalyzers\**\Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(AnalyzerAssemblies)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+	</Target>
+
+</Project>
