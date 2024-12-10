@@ -48,20 +48,20 @@ EcoCode C# can use [SonarScanner for .Net](https://docs.sonarsource.com/sonarqub
 
 |Id|Description|Severity|Code fix|
 |--|-----------|:------:|:------:|
-|[EC69](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC69/csharp/EC69.asciidoc)|Don’t call loop invariant functions in loop conditions|⚠️|❌|
-|[EC72](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC72/csharp/EC72.asciidoc)|Don’t execute SQL queries in loops|⚠️|❌|
-|[EC75](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC75/csharp/EC75.asciidoc)|Don’t concatenate `strings` in loops|⚠️|❌|
-|[EC81](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC81/csharp/EC81.asciidoc)|Specify `struct` layouts|⚠️|✔️|
-|[EC82](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC82/csharp/EC82.asciidoc)|Variable can be made constant|ℹ️|✔️|
-|[EC83](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC83/csharp/EC83.asciidoc)|Replace Enum `ToString()` with `nameof`|⚠️|✔️|
-|[EC84](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC84/csharp/EC84.asciidoc)|Avoid `async void` methods|⚠️|✔️|
-|[EC85](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC85/csharp/EC85.asciidoc)|Make type `sealed`|ℹ️|✔️|
-|[EC86](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC86/csharp/EC86.asciidoc)|`GC.Collect` should not be called|⚠️|❌|
-|[EC87](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC87/csharp/EC87.asciidoc)|Use collection indexer|⚠️|✔️|
-|[EC88](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC88/csharp/EC88.asciidoc)|Dispose resource asynchronously|⚠️|✔️|
-|[EC91](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC91/csharp/EC91.asciidoc)|Use `Where` before `OrderBy`|⚠️|✔️|
-|[EC92](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC92/csharp/EC92.asciidoc)|Use `Length` to test empty `strings`|⚠️|✔️|
-|[EC93](https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/EC93/csharp/EC93.asciidoc)|Return `Task` directly|ℹ️|✔️|
+|[GCI69](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI69/csharp/GCI69.asciidoc)|Don’t call loop invariant functions in loop conditions|⚠️|❌|
+|[GCI72](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI72/csharp/GCI72.asciidoc)|Don’t execute SQL queries in loops|⚠️|❌|
+|[GCI75](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI75/csharp/GCI75.asciidoc)|Don’t concatenate `strings` in loops|⚠️|❌|
+|[GCI81](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI81/csharp/GCI81.asciidoc)|Specify `struct` layouts|⚠️|✔️|
+|[GCI82](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI82/csharp/GCI82.asciidoc)|Variable can be made constant|ℹ️|✔️|
+|[GCI83](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI83/csharp/GCI83.asciidoc)|Replace Enum `ToString()` with `nameof`|⚠️|✔️|
+|[GCI84](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI84/csharp/GCI84.asciidoc)|Avoid `async void` methods|⚠️|✔️|
+|[GCI85](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI85/csharp/GCI85.asciidoc)|Make type `sealed`|ℹ️|✔️|
+|[GCI86](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI86/csharp/GCI86.asciidoc)|`GC.Collect` should not be called|⚠️|❌|
+|[GCI87](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI87/csharp/GCI87.asciidoc)|Use collection indexer|⚠️|✔️|
+|[GCI88](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI88/csharp/GCI88.asciidoc)|Dispose resource asynchronously|⚠️|✔️|
+|[GCI91](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI91/csharp/GCI91.asciidoc)|Use `Where` before `OrderBy`|⚠️|✔️|
+|[GCI92](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI92/csharp/GCI92.asciidoc)|Use `Length` to test empty `strings`|⚠️|✔️|
+|[GCI93](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI93/csharp/GCI93.asciidoc)|Return `Task` directly|ℹ️|✔️|
 
 🌿 Customized Roslyn Rules
 -------------------

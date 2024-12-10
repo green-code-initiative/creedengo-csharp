@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC91: Use Where before OrderBy.</summary>
+/// <summary>GCI91: Use Where before OrderBy.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseWhereBeforeOrderBy : DiagnosticAnalyzer
 {
@@ -9,7 +9,7 @@ public sealed class UseWhereBeforeOrderBy : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC91_UseWhereBeforeOrderBy,
+        id: Rule.Ids.GCI91_UseWhereBeforeOrderBy,
         title: "Use Where before OrderBy",
         message: "Call Where before OrderBy in a LINQ method chain",
         category: Rule.Categories.Usage,
