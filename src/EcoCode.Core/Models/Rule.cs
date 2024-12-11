@@ -38,5 +38,5 @@ internal static class Rule
     /// <returns>The diagnostic descriptor.</returns>
     public static DiagnosticDescriptor CreateDescriptor(string id, string title, string message, string category, DiagnosticSeverity severity, string description) =>
         new(id, title, message, category, severity, isEnabledByDefault: true, description, helpLinkUri:
-            $"https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/{id}/csharp/{id}.asciidoc");
+            $"https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/{id}/csharp/{id}.asciidoc");
 }
