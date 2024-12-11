@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC82: Variable can be made constant.</summary>
+/// <summary>GCI82: Variable can be made constant.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 {
@@ -8,7 +8,7 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC82_VariableCanBeMadeConstant,
+        id: Rule.Ids.GCI82_VariableCanBeMadeConstant,
         title: "Variable can be made constant",
         message: "A variable can be made constant",
         category: Rule.Categories.Usage,

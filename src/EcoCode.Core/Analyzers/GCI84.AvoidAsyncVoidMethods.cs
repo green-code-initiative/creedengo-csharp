@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC84: Avoid async void methods.</summary>
+/// <summary>GCI84: Avoid async void methods.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
 {
@@ -8,7 +8,7 @@ public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC84_AvoidAsyncVoidMethods,
+        id: Rule.Ids.GCI84_AvoidAsyncVoidMethods,
         title: "Avoid async void methods",
         message: "Avoid async void methods",
         category: Rule.Categories.Design,

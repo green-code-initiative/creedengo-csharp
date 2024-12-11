@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC93 fixer: Return Task directly.</summary>
+/// <summary>GCI93 fixer: Return Task directly.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReturnTaskDirectly)), Shared]
 public sealed class ReturnTaskDirectlyFixer : CodeFixProvider
 {

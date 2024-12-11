@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC81: Specify struct layout.</summary>
+/// <summary>GCI81: Specify struct layout.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SpecifyStructLayout : DiagnosticAnalyzer
 {
@@ -8,7 +8,7 @@ public sealed class SpecifyStructLayout : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC81_UseStructLayout,
+        id: Rule.Ids.GCI81_UseStructLayout,
         title: "Use struct layout",
         message: "Use struct layout",
         category: Rule.Categories.Performance,

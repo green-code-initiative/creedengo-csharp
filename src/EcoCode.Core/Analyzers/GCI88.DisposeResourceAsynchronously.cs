@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC88: Dispose resource asynchronously.</summary>
+/// <summary>GCI88: Dispose resource asynchronously.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DisposeResourceAsynchronously : DiagnosticAnalyzer
 {
@@ -9,7 +9,7 @@ public sealed class DisposeResourceAsynchronously : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC88_DisposeResourceAsynchronously,
+        id: Rule.Ids.GCI88_DisposeResourceAsynchronously,
         title: "Dispose resource asynchronously",
         message: "A resource can be disposed asynchronously",
         category: Rule.Categories.Usage,

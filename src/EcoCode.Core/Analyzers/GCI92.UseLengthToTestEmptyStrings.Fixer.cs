@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC92 fixer: Use Length to test empty strings.</summary>
+/// <summary>GCI92 fixer: Use Length to test empty strings.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseLengthToTestEmptyStringsFixer)), Shared]
 public sealed class UseLengthToTestEmptyStringsFixer : CodeFixProvider
 {

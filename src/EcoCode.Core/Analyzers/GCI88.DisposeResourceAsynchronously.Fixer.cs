@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC88 fixer: Dispose resource asynchronously.</summary>
+/// <summary>GCI88 fixer: Dispose resource asynchronously.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DisposeResourceAsynchronouslyFixer)), Shared]
 public sealed class DisposeResourceAsynchronouslyFixer : CodeFixProvider
 {

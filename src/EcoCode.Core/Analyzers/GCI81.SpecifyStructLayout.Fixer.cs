@@ -2,7 +2,7 @@
 
 namespace EcoCode.Analyzers;
 
-/// <summary>EC81 fixer: Use struct layout.</summary>
+/// <summary>GCI81 fixer: Use struct layout.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SpecifyStructLayoutFixer)), Shared]
 public sealed class SpecifyStructLayoutFixer : CodeFixProvider
 {

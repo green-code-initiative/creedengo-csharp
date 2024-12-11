@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC82 dixer: Variable can be made constant.</summary>
+/// <summary>GCI82 dixer: Variable can be made constant.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(VariableCanBeMadeConstantFixer)), Shared]
 public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
 {

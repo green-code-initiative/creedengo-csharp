@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC91 fixer: Use Where before OrderBy.</summary>
+/// <summary>GCI91 fixer: Use Where before OrderBy.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseWhereBeforeOrderByFixer)), Shared]
 public sealed class UseWhereBeforeOrderByFixer : CodeFixProvider
 {

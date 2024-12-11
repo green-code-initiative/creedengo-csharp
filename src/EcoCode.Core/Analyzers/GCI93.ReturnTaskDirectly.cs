@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC93: Return Task directly.</summary>
+/// <summary>GCI93: Return Task directly.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
 {
@@ -8,7 +8,7 @@ public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC93_ReturnTaskDirectly,
+        id: Rule.Ids.GCI93_ReturnTaskDirectly,
         title: "Consider returning Task directly",
         message: "Consider returning a Task directly instead of awaiting a single statement",
         category: Rule.Categories.Performance,

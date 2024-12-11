@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC83 fixer: Replace enum ToString with nameof.</summary>
+/// <summary>GCI83 fixer: Replace enum ToString with nameof.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReplaceEnumToStringWithNameOfFixer)), Shared]
 public sealed class ReplaceEnumToStringWithNameOfFixer : CodeFixProvider
 {

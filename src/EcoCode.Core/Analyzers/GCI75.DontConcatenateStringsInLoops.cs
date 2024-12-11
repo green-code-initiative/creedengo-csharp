@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC75: Don't concatenate strings in loops.</summary>
+/// <summary>GCI75: Don't concatenate strings in loops.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
 {
@@ -13,7 +13,7 @@ public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC75_DontConcatenateStringsInLoops,
+        id: Rule.Ids.GCI75_DontConcatenateStringsInLoops,
         title: "Don't concatenate strings in loops",
         message: "A string is concatenated in a loop",
         category: Rule.Categories.Performance,

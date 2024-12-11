@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC69: Don't call loop invariant functions in loop conditions.</summary>
+/// <summary>GCI69: Don't call loop invariant functions in loop conditions.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DontCallFunctionsInLoopConditions : DiagnosticAnalyzer
 {
@@ -11,7 +11,7 @@ public sealed class DontCallFunctionsInLoopConditions : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC69_DontCallFunctionsInLoopConditions,
+        id: Rule.Ids.GCI69_DontCallFunctionsInLoopConditions,
         title: "Don't call loop invariant functions in loop conditions",
         message: "A loop invariant function is called in a loop condition",
         category: Rule.Categories.Performance,
