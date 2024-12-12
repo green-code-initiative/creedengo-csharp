@@ -1,9 +1,9 @@
 {
   "solution": {
-    "path": "ecoCode-csharp.sln",
+    "path": "creedengo-csharp.sln",
     "projects": [
-      "src\\EcoCode.Core\\EcoCode.Core.csproj",
-      "src\\EcoCode.Tests\\EcoCode.Tests.csproj"
+      "src\\Creedengo.Core\\Creedengo.Core.csproj",
+      "src\\Creedengo.Tests\\Creedengo.Tests.csproj"
     ]
   }
 }

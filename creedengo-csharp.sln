@@ -34,19 +34,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
-		EcoCode.globalconfig = EcoCode.globalconfig
+		Creedengo.globalconfig = Creedengo.globalconfig
 		global.json = global.json
 		Rules to work on.md = Rules to work on.md
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcoCode.Core", "src\EcoCode.Core\EcoCode.Core.csproj", "{71F0E72B-5686-4021-B404-C730B8A2A0AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creedengo.Core", "src\Creedengo.Core\Creedengo.Core.csproj", "{71F0E72B-5686-4021-B404-C730B8A2A0AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcoCode.Package", "src\EcoCode.Package\EcoCode.Package.csproj", "{233C8934-6E23-D7BF-A9FC-78A4431F3A06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creedengo.Package", "src\Creedengo.Package\Creedengo.Package.csproj", "{233C8934-6E23-D7BF-A9FC-78A4431F3A06}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcoCode.Tests", "src\EcoCode.Tests\EcoCode.Tests.csproj", "{170A2EDF-DE80-F9FE-C403-53127138A713}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creedengo.Tests", "src\Creedengo.Tests\Creedengo.Tests.csproj", "{170A2EDF-DE80-F9FE-C403-53127138A713}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcoCode.Tool", "src\EcoCode.Tool\EcoCode.Tool.csproj", "{DBF60DEC-9C46-6FC0-EEE0-892F31353788}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creedengo.Tool", "src\Creedengo.Tool\Creedengo.Tool.csproj", "{DBF60DEC-9C46-6FC0-EEE0-892F31353788}"
 EndProject
 Global
 	GlobalSection(ExtensibilityGlobals) = postSolution

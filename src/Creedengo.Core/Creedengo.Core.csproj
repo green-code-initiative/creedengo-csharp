@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Title>EcoCode.Core</Title>
-		<Product>EcoCode.Core</Product>
+		<Title>Creedengo.Core</Title>
+		<Product>Creedengo.Core</Product>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 

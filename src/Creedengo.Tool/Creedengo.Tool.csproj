@@ -10,18 +10,18 @@
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
 
-		<Title>EcoCode.Tool</Title>
-		<Product>EcoCode.Tool</Product>
-		<PackageId>EcoCode.Tool</PackageId>
+		<Title>Creedengo.Tool</Title>
+		<Product>Creedengo.Tool</Product>
+		<PackageId>Creedengo.Tool</PackageId>
 		<ToolCommandName>ecocode</ToolCommandName>
 
-		<PackageProjectUrl>https://github.com/green-code-initiative/ecoCode-csharp</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/green-code-initiative/ecoCode-csharp</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/green-code-initiative/creedengo-csharp</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/green-code-initiative/creedengo-csharp</RepositoryUrl>
 		<PackageIcon>icon.jpeg</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageTags>EcoCode, Analyzers, Environment</PackageTags>
+		<PackageTags>Creedengo, Analyzers, Environment</PackageTags>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
 
@@ -41,7 +41,7 @@
 		<Content Include="..\..\icon.jpeg" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 		<Content Include="..\..\NOTICE.md" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 		<Content Include="..\..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
-		<None Include="..\..\EcoCode.globalconfig" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="..\..\Creedengo.globalconfig" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,7 +61,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\EcoCode.Core\EcoCode.Core.csproj" />
+		<ProjectReference Include="..\Creedengo.Core\Creedengo.Core.csproj" />
 	</ItemGroup>
 
 	<Target Name="PostPublishCleanup" AfterTargets="Publish">
