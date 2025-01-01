@@ -11,21 +11,21 @@ internal static class Rule
 
     public static class Ids
     {
-        public const string EC69_DontCallFunctionsInLoopConditions = "EC69";
-        public const string EC72_DontExecuteSqlCommandsInLoops = "EC72";
-        public const string EC75_DontConcatenateStringsInLoops = "EC75";
-        public const string EC81_UseStructLayout = "EC81";
-        public const string EC82_VariableCanBeMadeConstant = "EC82";
-        public const string EC83_ReplaceEnumToStringWithNameOf = "EC83";
-        public const string EC84_AvoidAsyncVoidMethods = "EC84";
-        public const string EC85_MakeTypeSealed = "EC85";
-        public const string EC86_GCCollectShouldNotBeCalled = "EC86";
-        public const string EC87_UseCollectionIndexer = "EC87";
-        public const string EC88_DisposeResourceAsynchronously = "EC88";
-        public const string EC89_DoNotPassMutableStructAsRefReadonly = "EC89";
-        public const string EC91_UseWhereBeforeOrderBy = "EC91";
-        public const string EC92_UseStringEmptyLength = "EC92";
-        public const string EC93_ReturnTaskDirectly = "EC93";
+        public const string GCI69_DontCallFunctionsInLoopConditions = "GCI69";
+        public const string GCI72_DontExecuteSqlCommandsInLoops = "GCI72";
+        public const string GCI75_DontConcatenateStringsInLoops = "GCI75";
+        public const string GCI81_UseStructLayout = "GCI81";
+        public const string GCI82_VariableCanBeMadeConstant = "GCI82";
+        public const string GCI83_ReplaceEnumToStringWithNameOf = "GCI83";
+        public const string GCI84_AvoidAsyncVoidMethods = "GCI84";
+        public const string GCI85_MakeTypeSealed = "GCI85";
+        public const string GCI86_GCCollectShouldNotBeCalled = "GCI86";
+        public const string GCI87_UseCollectionIndexer = "GCI87";
+        public const string GCI88_DisposeResourceAsynchronously = "GCI88";
+        public const string GCI89_DoNotPassMutableStructAsRefReadonly = "GCI89";
+        public const string GCI91_UseWhereBeforeOrderBy = "GCI91";
+        public const string GCI92_UseStringEmptyLength = "GCI92";
+        public const string GCI93_ReturnTaskDirectly = "GCI93";
     }
 
     /// <summary>Creates a diagnostic descriptor.</summary>
@@ -38,5 +38,5 @@ internal static class Rule
     /// <returns>The diagnostic descriptor.</returns>
     public static DiagnosticDescriptor CreateDescriptor(string id, string title, string message, string category, DiagnosticSeverity severity, string description) =>
         new(id, title, message, category, severity, isEnabledByDefault: true, description, helpLinkUri:
-            $"https://github.com/green-code-initiative/ecoCode/blob/main/ecocode-rules-specifications/src/main/rules/{id}/csharp/{id}.asciidoc");
+            $"https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/{id}/csharp/{id}.asciidoc");
 }

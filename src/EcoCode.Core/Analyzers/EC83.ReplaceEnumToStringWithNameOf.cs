@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC83: Replace enum ToString with nameof.</summary>
+/// <summary>GCI83: Replace enum ToString with nameof.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReplaceEnumToStringWithNameOf : DiagnosticAnalyzer
 {
@@ -9,7 +9,7 @@ public sealed class ReplaceEnumToStringWithNameOf : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC83_ReplaceEnumToStringWithNameOf,
+        id: Rule.Ids.GCI83_ReplaceEnumToStringWithNameOf,
         title: "Replace enum ToString with nameof",
         message: "Enum.ToString() can be replaced with nameof()",
         category: Rule.Categories.Performance,

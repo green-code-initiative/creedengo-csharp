@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC92: Use Length to test empty strings.</summary>
+/// <summary>GCI92: Use Length to test empty strings.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseLengthToTestEmptyStrings : DiagnosticAnalyzer
 {
@@ -9,7 +9,7 @@ public sealed class UseLengthToTestEmptyStrings : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC92_UseStringEmptyLength,
+        id: Rule.Ids.GCI92_UseStringEmptyLength,
         title: "Use Length to test empty strings",
         message: "Use string.Length instead of comparison with empty string",
         category: Rule.Categories.Usage,
