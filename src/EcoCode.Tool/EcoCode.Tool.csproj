@@ -46,15 +46,22 @@
 
 	<ItemGroup>
 		<PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all" ExcludeAssets="compile" />
-		<PackageReference Include="Microsoft.Build" PrivateAssets="all" ExcludeAssets="compile; runtime" />
+		<PackageReference Include="Microsoft.Build" PrivateAssets="all" ExcludeAssets="compile; runtime">
+		  <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Build.Locator" />
 		<PackageReference Include="Microsoft.CodeAnalysis" />
-		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" />
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
 		<PackageReference Include="Microsoft.Extensions.Logging" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" ExcludeAssets="compile" />
-		<PackageReference Include="Roslynator.Analyzers" PrivateAssets="all" ExcludeAssets="compile; runtime" />
+		<PackageReference Include="Roslynator.Analyzers" PrivateAssets="all" ExcludeAssets="compile; runtime">
+		  <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Spectre.Console" />
 		<PackageReference Include="Spectre.Console.Cli" />
 		<PackageReference Include="System.Text.Json" />

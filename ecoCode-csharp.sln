@@ -49,9 +49,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcoCode.Tool", "src\EcoCode.Tool\EcoCode.Tool.csproj", "{DBF60DEC-9C46-6FC0-EEE0-892F31353788}"
 EndProject
 Global
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F20F15FF-417E-42ED-962A-2CF00C3E4467}
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -82,25 +79,7 @@ Global
 		{27501C7C-A65B-40A8-464F-F047BAFE6F81} = {089100B1-113F-4E66-888A-E83F3999EAFD}
 		{375CBD0D-5754-352F-9D9D-ED72E2F1B0ED} = {089100B1-113F-4E66-888A-E83F3999EAFD}
 	EndGlobalSection
-EndGlobal
-
-	EndGlobalSection
-EndGlobal
-}
-	EndGlobalSection
-EndGlobal
-916D065F}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{6B1DB35C-47E6-C62F-BA1D-5846AF2B77D4} = {089100B1-113F-4E66-888A-E83F3999EAFD}
-		{27501C7C-A65B-40A8-464F-F047BAFE6F81} = {089100B1-113F-4E66-888A-E83F3999EAFD}
-		{375CBD0D-5754-352F-9D9D-ED72E2F1B0ED} = {089100B1-113F-4E66-888A-E83F3999EAFD}
-	EndGlobalSection
-EndGlobal
-}
-		{375CBD0D-5754-352F-9D9D-ED72E2F1B0ED} = {089100B1-113F-4E66-888A-E83F3999EAFD}
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F20F15FF-417E-42ED-962A-2CF00C3E4467}
 	EndGlobalSection
 EndGlobal
