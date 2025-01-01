@@ -2,7 +2,7 @@
 
 namespace EcoCode.Analyzers;
 
-/// <summary>EC85: Make type sealed.</summary>
+/// <summary>GCI85: Make type sealed.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MakeTypeSealed : DiagnosticAnalyzer
 {
@@ -10,7 +10,7 @@ public sealed class MakeTypeSealed : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC85_MakeTypeSealed,
+        id: Rule.Ids.GCI85_MakeTypeSealed,
         title: "Make type sealed",
         message: "Type may be sealed, as it has no subtypes in its assembly and no user-declared overridable member",
         category: Rule.Categories.Performance,

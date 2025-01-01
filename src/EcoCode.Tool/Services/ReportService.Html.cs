@@ -17,7 +17,7 @@ static partial class ReportService
             </style>
         </head>
         <body>
-            <h1>EcoCode analyzer report</h1>
+            <h1>Creedengo analyzer report</h1>
             <table>
                 <tr>
                     <th>Directory</th>

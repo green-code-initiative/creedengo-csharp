@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC84 fixer: Avoid async void methods.</summary>
+/// <summary>GCI84 fixer: Avoid async void methods.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AvoidAsyncVoidMethodsFixer)), Shared]
 public sealed class AvoidAsyncVoidMethodsFixer : CodeFixProvider
 {

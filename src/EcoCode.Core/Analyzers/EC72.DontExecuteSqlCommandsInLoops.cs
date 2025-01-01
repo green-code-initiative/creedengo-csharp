@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC72: Don't execute SQL commands in loops.</summary>
+/// <summary>GCI72: Don't execute SQL commands in loops.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DontExecuteSqlCommandsInLoops : DiagnosticAnalyzer
 {
@@ -8,7 +8,7 @@ public sealed class DontExecuteSqlCommandsInLoops : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC72_DontExecuteSqlCommandsInLoops,
+        id: Rule.Ids.GCI72_DontExecuteSqlCommandsInLoops,
         title: "Don't execute SQL commands in loops",
         message: "A SQL command is executed in a loop",
         category: Rule.Categories.Performance,

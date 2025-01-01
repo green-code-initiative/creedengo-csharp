@@ -2,7 +2,7 @@
 
 namespace EcoCode.Analyzers;
 
-/// <summary>EC87 fixer: Use list indexer.</summary>
+/// <summary>GCI87 fixer: Use list indexer.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseListIndexerFixer)), Shared]
 public sealed class UseListIndexerFixer : CodeFixProvider
 {

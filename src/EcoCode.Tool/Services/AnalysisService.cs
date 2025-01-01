@@ -29,7 +29,7 @@ internal sealed partial class AnalysisService
         int ecoCodeAnalyzersCount = analyzers.Count;
 
         analyzers.AddRange(LoadRoslynAnalyzers(globalConfig.Text, minSeverity));
-        Program.WriteLine($"Using {ecoCodeAnalyzersCount} EcoCode analyzers and {analyzers.Count - ecoCodeAnalyzersCount} customized Roslyn analyzers");
+        Program.WriteLine($"Using {ecoCodeAnalyzersCount} Creedengo analyzers and {analyzers.Count - ecoCodeAnalyzersCount} customized Roslyn analyzers");
 
         return new(analyzers.DrainToImmutable(), new AnalyzerOptions([globalConfig]));
     }

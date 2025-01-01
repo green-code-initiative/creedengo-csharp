@@ -1,6 +1,6 @@
 ﻿namespace EcoCode.Analyzers;
 
-/// <summary>EC86 : GC Collect should not be called.</summary>
+/// <summary>GCI86 : GC Collect should not be called.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GCCollectShouldNotBeCalled : DiagnosticAnalyzer
 {
@@ -8,7 +8,7 @@ public sealed class GCCollectShouldNotBeCalled : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC86_GCCollectShouldNotBeCalled,
+        id: Rule.Ids.GCI86_GCCollectShouldNotBeCalled,
         title: "Avoid calling GC.Collect() method",
         message: "Avoid calling GC.Collect() method",
         category: Rule.Categories.Performance,

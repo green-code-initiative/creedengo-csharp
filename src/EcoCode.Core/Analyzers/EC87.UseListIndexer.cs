@@ -2,7 +2,7 @@
 
 namespace EcoCode.Analyzers;
 
-/// <summary>EC87: Use list indexer.</summary>
+/// <summary>GCI87: Use list indexer.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseListIndexer : DiagnosticAnalyzer
 {
@@ -10,7 +10,7 @@ public sealed class UseListIndexer : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.EC87_UseCollectionIndexer,
+        id: Rule.Ids.GCI87_UseCollectionIndexer,
         title: "Use list indexer",
         message: "A list indexer should be used instead of a Linq method",
         category: Rule.Categories.Performance,
