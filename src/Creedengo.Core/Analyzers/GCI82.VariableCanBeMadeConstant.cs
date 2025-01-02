@@ -54,7 +54,9 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
             // * If the constant value is a string, the type of the local declaration must be string
             // * If the constant value is null, the type of the local declaration must be a reference type
             if (constantValue.Value is string)
+            {
                 if (variableType.SpecialType is not SpecialType.System_String) return;
+            }
             else if (variableType.IsReferenceType && constantValue.Value is not null)
             {
                 return;
