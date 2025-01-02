@@ -63,6 +63,7 @@
 		</PackageReference>
 		<PackageReference Include="Spectre.Console" />
 		<PackageReference Include="Spectre.Console.Cli" />
+		<PackageReference Include="System.Formats.Asn1" />
 		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 
