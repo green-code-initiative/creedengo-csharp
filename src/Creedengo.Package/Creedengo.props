@@ -1,0 +1,5 @@
+<Project>
+	<ItemGroup>
+		<GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../analyzers/config/Creedengo.globalconfig" />
+	</ItemGroup>
+</Project>

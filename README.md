@@ -1,4 +1,4 @@
-﻿[![Creedengo on NuGet](https://img.shields.io/nuget/v/EcoCode.svg)](https://www.nuget.org/packages/EcoCode/) [![Creedengo on NuGet](https://img.shields.io/nuget/dt/EcoCode)](https://www.nuget.org/packages/EcoCode/)
+﻿[![Creedengo on NuGet](https://img.shields.io/nuget/v/Creedengo.svg)](https://www.nuget.org/packages/Creedengo/) [![Creedengo on NuGet](https://img.shields.io/nuget/dt/Creedengo)](https://www.nuget.org/packages/Creedengo/)
 
 Creedengo-C#
 ===========
@@ -19,21 +19,21 @@ There are several ways you can use the creedengo C# analyzers in your .Net proje
 
 <a name="nugetPackage"></a>🧩 NuGet package
 -----------------
-The package is available on nuget.org at this address : https://www.nuget.org/packages/EcoCode, and can be added to your projects/solutions like any NuGet package. Once referenced and restored, the creedengo analyzers are automatically integrated in your IDE/compilation process, and will list any applicable info/alert.
+The package is available on nuget.org at this address : https://www.nuget.org/packages/Creedengo, and can be added to your projects/solutions like any NuGet package. Once referenced and restored, the creedengo analyzers are automatically integrated in your IDE/compilation process, and will list any applicable info/alert.
 
 Pre-requisite : .Net Standard 2.0, which can be used in a wide range of projects. See [Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version) for details about the supported Frameworks.
 
 <a name="dotnetTool"></a>🧩 .Net tool
 -----------------
-The .Net tool is available on nuget.org at this address : https://www.nuget.org/packages/EcoCode.Tool, and can be fetched on your machine using the following command :
+The .Net tool is available on nuget.org at this address : https://www.nuget.org/packages/Creedengo.Tool, and can be fetched on your machine using the following command :
 
-`dotnet tool install --global EcoCode.Tool`
+`dotnet tool install --global Creedengo.Tool`
 
 See [.Net tools documentation](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools) for additional information.
 
 Once installed, you can launch an analyzis on an existing codebase like this :
 
-`ecocode-cli analyze path/to/mySolution.sln path/to/myReport.html`.
+`creedengo-cli analyze path/to/mySolution.sln path/to/myReport.html`.
 
 The file to analyze can be a .sln, a .slnx or a .csproj. The report format depends on it's required extension, the following are currently supported : .html, .json and .csv.
 
