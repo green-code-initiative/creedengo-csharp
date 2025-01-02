@@ -34,5 +34,5 @@ jobs:
         prerelease: ${{ inputs.tag != inputs.version }}
         body: "Release of version ${{ inputs.tag }}"
         files: |
-          nupkg/**/EcoCode.${{ inputs.tag }}.nupkg
-          tool/**/EcoCode.Tool.${{ inputs.tag }}.nupkg
+          nupkg/**/Creedengo.${{ inputs.tag }}.nupkg
+          tool/**/Creedengo.Tool.${{ inputs.tag }}.nupkg

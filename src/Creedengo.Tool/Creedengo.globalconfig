@@ -1,0 +1,160 @@
+is_global = true
+
+# This file is used to customize the severity of existing Roslyn rules for the user
+# It is delivered as part of the NuGet package and the .Net Tool
+
+# CA1001: Types that own disposable fields should be disposable
+dotnet_diagnostic.CA1001.severity = warning
+
+# CA1802: Use Literals Where Appropriate
+dotnet_diagnostic.CA1802.severity = warning
+
+# CA1805: Do not initialize unnecessarily
+dotnet_diagnostic.CA1805.severity = warning
+
+# CA1813: Avoid unsealed attributes
+dotnet_diagnostic.CA1813.severity = warning
+
+# CA1816: Call GC.SuppressFinalize correctly
+dotnet_diagnostic.CA1816.severity = warning
+
+# CA1821: Remove empty finalizers
+dotnet_diagnostic.CA1821.severity = warning
+
+# CA1822: Mark members as static
+dotnet_diagnostic.CA1822.severity = warning
+
+# CA1824: Mark assemblies with NeutralResourcesLanguageAttribute
+dotnet_diagnostic.CA1824.severity = warning
+
+# CA1825: Avoid zero-length array allocations
+dotnet_diagnostic.CA1825.severity = warning
+
+# CA1826: Use property instead of Linq Enumerable method
+dotnet_diagnostic.CA1826.severity = warning
+
+# CA1827: Do not use Count()/LongCount() when Any() can be used
+dotnet_diagnostic.CA1827.severity = warning
+
+# CA1828: Do not use CountAsync/LongCountAsync when AnyAsync can be used
+dotnet_diagnostic.CA1828.severity = warning
+
+# CA1829: Use Length/Count property instead of Enumerable.Count method
+dotnet_diagnostic.CA1829.severity = warning
+
+# CA1830: Prefer strongly-typed Append and Insert method overloads on StringBuilder
+dotnet_diagnostic.CA1830.severity = warning
+
+# CA1832: Use AsSpan or AsMemory instead of Range-based indexers for getting ReadOnlySpan or ReadOnlyMemory portion of an array
+dotnet_diagnostic.CA1832.severity = warning
+
+# CA1833: Use AsSpan or AsMemory instead of Range-based indexers for getting Span or Memory portion of an array
+dotnet_diagnostic.CA1833.severity = warning
+
+# CA1834: Use StringBuilder.Append(char) for single character strings
+dotnet_diagnostic.CA1834.severity = warning
+
+# CA1835: Prefer the memory-based overloads of ReadAsync/WriteAsync methods in stream-based classes
+dotnet_diagnostic.CA1835.severity = warning
+
+# CA1836: Prefer IsEmpty over Count when available
+dotnet_diagnostic.CA1836.severity = warning
+
+# CA1837: Use Environment.ProcessId instead of Process.GetCurrentProcess().Id
+dotnet_diagnostic.CA1837.severity = warning
+
+# CA1838: Avoid StringBuilder parameters for P/Invokes
+dotnet_diagnostic.CA1838.severity = warning
+
+# CA1839: Use Environment.ProcessPath instead of Process.GetCurrentProcess().MainModule.FileName
+dotnet_diagnostic.CA1839.severity = warning
+
+# CA1840: Use Environment.CurrentManagedThreadId instead of Thread.CurrentThread.ManagedThreadId
+dotnet_diagnostic.CA1840.severity = warning
+
+# CA1841: Prefer Dictionary Contains methods
+dotnet_diagnostic.CA1841.severity = warning
+
+# CA1842: Do not use 'WhenAll' with a single task
+dotnet_diagnostic.CA1842.severity = warning
+
+# CA1843: Do not use 'WaitAll' with a single task
+dotnet_diagnostic.CA1843.severity = warning
+
+# CA1844: Provide memory-based overrides of async methods when subclassing 'Stream'
+dotnet_diagnostic.CA1844.severity = warning
+
+# CA1845: Use span-based 'string.Concat'
+dotnet_diagnostic.CA1845.severity = warning
+
+# CA1846: Prefer AsSpan over Substring
+dotnet_diagnostic.CA1846.severity = warning
+
+# CA1847: Use String.Contains(char) instead of String.Contains(string) with single characters
+dotnet_diagnostic.CA1847.severity = warning
+
+# CA1850: Prefer static HashData method over ComputeHash
+dotnet_diagnostic.CA1850.severity = warning
+
+# CA1853: Unnecessary call to 'Dictionary.ContainsKey(key)'
+dotnet_diagnostic.CA1853.severity = warning
+
+# CA1854: Prefer the IDictionary.TryGetValue(TKey, out TValue) method
+dotnet_diagnostic.CA1854.severity = warning
+
+# CA1855: Use Span<T>.Clear() instead of Span<T>.Fill()
+dotnet_diagnostic.CA1855.severity = warning
+
+# CA1858: Use StartsWith instead of IndexOf
+dotnet_diagnostic.CA1858.severity = warning
+
+# CA1859: Use concrete types when possible for improved performance
+dotnet_diagnostic.CA1859.severity = warning
+
+# CA1860: Avoid using 'Enumerable.Any()' extension method
+dotnet_diagnostic.CA1860.severity = warning
+
+# CA1863: Use 'CompositeFormat'
+dotnet_diagnostic.CA1863.severity = warning
+
+# CA1864: Prefer the 'IDictionary.TryAdd(TKey, TValue)' method
+dotnet_diagnostic.CA1864.severity = warning
+
+# CA1865: Use 'string.Method(char)' instead of 'string.Method(string)' for string with single char
+dotnet_diagnostic.CA1865.severity = warning
+
+# CA1866: Use 'string.Method(char)' instead of 'string.Method(string)' for string with single char
+dotnet_diagnostic.CA1866.severity = warning
+
+# CA1867: Use 'string.Method(char)' instead of 'string.Method(string)' for string with single char
+dotnet_diagnostic.CA1867.severity = warning
+
+# CA1868: Unnecessary call to 'Contains' for sets
+dotnet_diagnostic.CA1868.severity = warning
+
+# CA1869: Cache and reuse 'JsonSerializerOptions' instances
+dotnet_diagnostic.CA1869.severity = warning
+
+# CA1870: Use a cached 'SearchValues' instance
+dotnet_diagnostic.CA1870.severity = warning
+
+# CA1871: Do not pass a nullable struct to 'ArgumentNullException.ThrowIfNull'
+dotnet_diagnostic.CA1871.severity = warning
+
+# CA1872: Prefer 'Convert.ToHexString' and 'Convert.ToHexStringLower' over call chains based on 'BitConverter.ToString'
+dotnet_diagnostic.CA1872.severity = warning
+
+# CA2009: Do not call ToImmutableCollection on an ImmutableCollection value
+dotnet_diagnostic.CA2009.severity = warning
+
+# CA2215: Dispose methods should call base class dispose
+dotnet_diagnostic.CA2215.severity = warning
+
+# CA2218: Override GetHashCode on overriding Equals
+dotnet_diagnostic.CA2218.severity = warning
+
+# CA2251: Use String.Equals over String.Compare
+dotnet_diagnostic.CA2251.severity = warning
+
+# CA2264: Do not pass a non-nullable value to 'ArgumentNullException.ThrowIfNull'
+dotnet_diagnostic.CA2264.severity = warning
