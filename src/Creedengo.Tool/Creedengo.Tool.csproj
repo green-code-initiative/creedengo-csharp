@@ -21,7 +21,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageTags>EcoCode, Creedengo, GCI, Green Code Initiative, Analyzers, Environment</PackageTags>
+		<PackageTags>EcoCode, Creedengo, GCI, Green Code Initiative, Analyzers, Environment, Green</PackageTags>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
 
