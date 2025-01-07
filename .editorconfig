@@ -248,3 +248,4 @@ csharp_style_prefer_primary_constructors = true:suggestion
 
 # RCS1123: Add parentheses when necessary
 dotnet_diagnostic.RCS1123.severity = none
+csharp_prefer_system_threading_lock = true:suggestion

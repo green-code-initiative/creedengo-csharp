@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Title>Creedengo.Tests</Title>
+		<Product>Creedengo.Tests</Product>
+		<TargetFramework>net9.0</TargetFramework>
+		<IsTestProject>true</IsTestProject>
+		<NoWarn>$(NoWarn);1591;CA1515</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector" PrivateAssets="all" ExcludeAssets="compile; runtime">
+		  <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.msbuild" PrivateAssets="all" ExcludeAssets="compile; runtime">
+		  <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" PrivateAssets="all" />
+		<PackageReference Include="MSTest.TestAdapter" PrivateAssets="all" />
+		<PackageReference Include="MSTest.TestFramework" PrivateAssets="all" />
+		<PackageReference Include="System.Formats.Asn1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Creedengo.Core\Creedengo.Core.csproj" />
+	</ItemGroup>
+
+</Project>

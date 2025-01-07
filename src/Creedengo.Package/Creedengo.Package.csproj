@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<EnablePackageValidation>true</EnablePackageValidation>
+		<GenerateDependencyFile>false</GenerateDependencyFile>
+		<DevelopmentDependency>false</DevelopmentDependency>
+		<RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Title>Creedengo.Package</Title>
+		<Product>Creedengo.Package</Product>
+		<PackageId>Creedengo</PackageId>
+		<PackageProjectUrl>https://github.com/green-code-initiative/creedengo-csharp</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/green-code-initiative/creedengo-csharp</RepositoryUrl>
+		<PackageIcon>icon.jpeg</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>EcoCode, Creedengo, GCI, Green Code Initiative, Analyzers, Environment, Green</PackageTags>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Creedengo.Core\Creedengo.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="tools\*.ps1" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\icon.jpeg" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\NOTICE.md" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<None Remove="..\Creedengo.Core\bin\Debug\netstandard2.0\Creedengo.Core.dll" />
+		<None Include="..\Creedengo.Core\bin\$(Configuration)\$(TargetFramework)\Creedengo.Core.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all" ExcludeAssets="compile" />
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" IncludeAssets="analyzers" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" ExcludeAssets="compile" />
+	</ItemGroup>
+
+</Project>
