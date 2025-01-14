@@ -1,4 +1,4 @@
-﻿[![Creedengo on NuGet](https://img.shields.io/nuget/v/Creedengo.svg)](https://www.nuget.org/packages/Creedengo/) [![Creedengo on NuGet](https://img.shields.io/nuget/dt/Creedengo)](https://www.nuget.org/packages/Creedengo/)
+[![Creedengo on NuGet](https://img.shields.io/nuget/v/Creedengo.svg)](https://www.nuget.org/packages/Creedengo/) [![Creedengo on NuGet](https://img.shields.io/nuget/dt/Creedengo)](https://www.nuget.org/packages/Creedengo/)
 
 Creedengo-C#
 ===========
@@ -13,17 +13,17 @@ _creedengo_ is based on evolving catalogs of [good practices](https://github.com
 ------------------
 
 There are several ways you can use the creedengo C# analyzers in your .Net projects:
-1. As a [NuGet package](#nugetPackage)
-2. As a [.NET tool](#dotnetTool)
-3. As an [analyzer for SonarQube](#sonarQube).
+1. As a [NuGet package](#-nuget-package)
+2. As a [.NET tool](#-net-tool)
+3. As an [analyzer for SonarQube](#-analyzer-for-sonarqube).
 
-<a name="nugetPackage"></a>🧩 NuGet package
+🧩 NuGet package
 -----------------
 The package is available on nuget.org at this address : https://www.nuget.org/packages/Creedengo, and can be added to your projects/solutions like any NuGet package. Once referenced and restored, the creedengo analyzers are automatically integrated in your IDE/compilation process, and will list any applicable info/alert.
 
 Pre-requisite : .Net Standard 2.0, which can be used in a wide range of projects. See [Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0#select-net-standard-version) for details about the supported Frameworks.
 
-<a name="dotnetTool"></a>🧩 .Net tool
+🧩 .Net tool
 -----------------
 The .Net tool is available on nuget.org at this address : https://www.nuget.org/packages/Creedengo.Tool, and can be fetched on your machine using the following command :
 
@@ -39,7 +39,7 @@ The file to analyze can be a .sln, a .slnx or a .csproj. The report format depen
 
 Pre-requisite : .Net 8 SDK.
 
-<a name="sonarQube"></a>🧩 Analyzer for SonarQube
+🧩 Analyzer for SonarQube
 -----------------
 Creedengo C# can use [SonarScanner for .Net](https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/scanners/sonarscanner-for-dotnet/) to integrate with [SonarQube](https://www.sonarsource.com/products/sonarqube/), and uses a custom import addition to enrich what is reported to Sonar (severity, description, url page, category, and so on). See our [dedicated repository](https://github.com/green-code-initiative/creedengo-csharp-sonarqube) for more information.
 
