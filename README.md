@@ -13,9 +13,9 @@ _creedengo_ is based on evolving catalogs of [good practices](https://github.com
 ------------------
 
 There are several ways you can use the creedengo C# analyzers in your .Net projects:
-1. As a [NuGet package](#nugetPackage)
-2. As a [.NET tool](#dotnetTool)
-3. As an [analyzer for SonarQube](#sonarQube).
+1. As a [NuGet package](#-nuget-package)
+2. As a [.NET tool](#-net-tool)
+3. As an [analyzer for SonarQube](#-analyzer-for-sonarqube).
 
 🧩 NuGet package
 -----------------
