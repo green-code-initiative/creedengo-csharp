@@ -23,6 +23,7 @@ internal static class Rule
         public const string GCI87_UseCollectionIndexer = "GCI87";
         public const string GCI88_DisposeResourceAsynchronously = "GCI88";
         public const string GCI89_DoNotPassMutableStructAsRefReadonly = "GCI89";
+        public const string GCI90_UseCastInsteadOfSelect = "GCI90";
         public const string GCI91_UseWhereBeforeOrderBy = "GCI91";
         public const string GCI92_UseStringEmptyLength = "GCI92";
         public const string GCI93_ReturnTaskDirectly = "GCI93";
