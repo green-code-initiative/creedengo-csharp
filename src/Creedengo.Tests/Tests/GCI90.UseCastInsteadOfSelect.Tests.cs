@@ -9,7 +9,45 @@ public sealed class UseCastInsteadOfSelectTests
     public Task EmptyCodeAsync() => VerifyAsync("");
 
     [TestMethod]
-    public Task WarnOnCastWithSelectAsync() => VerifyAsync("""
+    public Task WarnOnSimpleSelectAsync() => VerifyAsync("""
+        using System.Linq;
+        using System.Collections.Generic;
+        
+        public static class Test
+        {
+            public static IEnumerable<object> Run(IEnumerable<string> values) => values.[|Select|](i => (object)i);
+        }
+        """, """
+        using System.Linq;
+        using System.Collections.Generic;
+        
+        public static class Test
+        {
+            public static IEnumerable<object> Run(IEnumerable<string> values) => values.Cast<object>();
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnSimpleSelectWithNullableAsync() => VerifyAsync("""
+        using System.Linq;
+        using System.Collections.Generic;
+        
+        public static class Test
+        {
+            public static IEnumerable<object?> Run(IEnumerable<string?> values) => values.[|Select|](i => (object?)i);
+        }
+        """, """
+        using System.Linq;
+        using System.Collections.Generic;
+        
+        public static class Test
+        {
+            public static IEnumerable<object?> Run(IEnumerable<string?> values) => values.Cast<object?>();
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnMultipleSelectAsync() => VerifyAsync("""
         using System.Linq;
         using System.Collections.Generic;
         
@@ -60,7 +98,7 @@ public sealed class UseCastInsteadOfSelectTests
         """);
 
     [TestMethod]
-    public Task DontWarnOnCastWithCastAsync() => VerifyAsync("""
+    public Task DontWarnOnMultipleCastAsync() => VerifyAsync("""
         using System.Linq;
         using System.Collections.Generic;
         

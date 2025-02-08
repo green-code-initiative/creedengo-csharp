@@ -1,4 +1,7 @@
-﻿namespace Creedengo.Core.Analyzers;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI90 fixer: Use Cast instead of Select to cast.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseCastInsteadOfSelectFixer)), Shared]
@@ -58,7 +61,16 @@ public sealed class UseCastInsteadOfSelectFixer : CodeFixProvider
             return document;
 
         var generator = editor.Generator;
-        var typeSyntax = (TypeSyntax)generator.TypeExpression(operation.TargetMethod.TypeArguments[1]);
+        var typeSyntax =
+            // Check if we have a cast expression in the lambda
+            selectInvocationExpr.ArgumentList.Arguments[0].Expression is LambdaExpressionSyntax lambda &&
+            lambda.Body is CastExpressionSyntax castExpr
+            ? castExpr.Type
+            // Otherwise, check if we have explicit type parameters
+            : memberAccessExpr.Name is GenericNameSyntax genericName
+            ? genericName.TypeArgumentList.Arguments[1]
+            // Fallback to generating type syntax from the semantic info
+            : (TypeSyntax)generator.TypeExpression(operation.TargetMethod.TypeArguments[1]);
 
         var castNameSyntax = SyntaxFactory.GenericName(SyntaxFactory.Identifier("Cast"))
             .WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList(typeSyntax)));
