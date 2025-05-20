@@ -1,7 +1,4 @@
-﻿
-using Microsoft.CodeAnalysis.CSharp;
-
-namespace Creedengo.Tests.Tests;
+﻿namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI95: Use is operator instead of as operator.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
