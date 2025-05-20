@@ -33,13 +33,23 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
         if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr &&
             binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
         {
-            if (binaryExpr.Left is BinaryExpressionSyntax asExpr &&
-                asExpr.IsKind(SyntaxKind.AsExpression) &&
-                binaryExpr.Right.IsKind(SyntaxKind.NullLiteralExpression))
+
+            var left = binaryExpr.Left;
+            var right = binaryExpr.Right;
+
+            if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
             {
-                var diagnostic = Diagnostic.Create(Descriptor, asExpr.GetLocation());
+                var asExpr = left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression ? lAs : right as BinaryExpressionSyntax;
+                var diagnostic = Diagnostic.Create(Descriptor, asExpr!.GetLocation());
                 context.ReportDiagnostic(diagnostic);
             }
         }
+    }
+
+    private static bool IsAsExpressionComparedToNull(ExpressionSyntax expressionA, ExpressionSyntax expressionB)
+    {
+        return expressionA is BinaryExpressionSyntax binaryExpressionSyntax && binaryExpressionSyntax.IsKind(SyntaxKind.AsExpression) &&
+               expressionB is LiteralExpressionSyntax literalExpressionSyntax &&
+               literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression);
     }
 }
