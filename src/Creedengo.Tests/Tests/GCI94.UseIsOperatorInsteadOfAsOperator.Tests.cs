@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Creedengo.Tests.Tests;
+﻿namespace Creedengo.Tests.Tests;
 
 [TestClass]
 public sealed class UseIsOperatorInsteadOfAsOperatorTests
@@ -21,15 +15,11 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
             void TestMethod()
             {
                 var x = "Hello";
-                if ([|x as string|] != null)
-                {
-        
-                }
+                if ([|x as string|] != null){ }
             }
         }
         """
         );
-
 
     [TestMethod]
     public Task DoNotUseAsOperatorInsteadOfIsReversedAsync() => VerifyAsync("""
@@ -38,10 +28,7 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
             void TestMethod()
             {
                 var x = "Hello";
-                if (null != [|x as string|])
-                {
-        
-                }
+                if (null != [|x as string|]){ }
             }
         }
         """
@@ -49,17 +36,85 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
 
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsReversedAsync2() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionAsync() => VerifyAsync("""
         class TestClass
         {
             void TestMethod()
             {
                 var x = "Hello";
                 var booleen = x.Length > 0;
-                if (null != [|x as string|] && booleen)
-                {
-        
-                }
+                if ([|x as string|] != null && booleen) { }
+            }
+        }
+        """
+        );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionRevertAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleen = x.Length > 0;
+                if (null != [|x as string|] && booleen){ }
+            }
+        }
+        """
+        );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsWithInversedLogicalExpressionAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleen = x.Length > 0;
+                if (booleen || [|x as string|] != null){ }
+            }
+        }
+        """
+        );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsWithMultipleLogicalExpressionAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleenA = x.Length > 0;
+                var booleenB = x.Length > 0;
+                if (booleenA || [|x as string|] != null && booleenB){ }
+            }
+        }
+        """
+        );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsWithMultipleAsExpressionAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var y = new TestClass();
+                var booleen = x.Length > 0;
+                if (booleen || [|x as string|] != null && [|y as TestClass|] != null){ }
+            }
+        }
+        """
+        );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsWithNegativeConditionalAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (!((x as string) == null)) { }
             }
         }
         """

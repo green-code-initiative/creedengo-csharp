@@ -21,7 +21,8 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
     private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
 
     /// <inheritdoc/>
-    public override void Initialize(AnalysisContext context){
+    public override void Initialize(AnalysisContext context)
+    {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.IfStatement);
@@ -30,27 +31,62 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
     private void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
         var ifStmt = (IfStatementSyntax)context.Node;
-        if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr)
+        foreach (var node in GetAllNodes(ifStmt.Condition))
         {
-            if(binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
+            if (node is BinaryExpressionSyntax binaryExpr &&
+                binaryExpr.Kind() == SyntaxKind.NotEqualsExpression)
             {
-                var left = binaryExpr.Left;
-                var right = binaryExpr.Right;
+                ExpressionSyntax left = binaryExpr.Left;
+                ExpressionSyntax right = binaryExpr.Right;
 
                 if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
                 {
-                    var asExpr = left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression ? lAs : right as BinaryExpressionSyntax;
-                    var diagnostic = Diagnostic.Create(Descriptor, asExpr!.GetLocation());
-                    context.ReportDiagnostic(diagnostic);
+                    // Diagnostic sur la partie "as"
+                    BinaryExpressionSyntax? asExpr;
+                    if (left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression)
+                    {
+                        asExpr = lAs;
+                    }
+                    else
+                    {
+                        asExpr = right is BinaryExpressionSyntax rAs && rAs.Kind() == SyntaxKind.AsExpression ? rAs : null;
+                    }
+
+                    if (asExpr != null)
+                    {
+                        var diagnostic = Diagnostic.Create(Descriptor, asExpr.GetLocation());
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
             }
-            else if (binaryExpr.IsKind(SyntaxKind.LogicalAndExpression))
-            {
+            //    if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr)
+            //{
+            //    if(binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
+            //    {
+            //        var left = binaryExpr.Left;
+            //        var right = binaryExpr.Right;
 
-            }
+            //        if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
+            //        {
+            //            var asExpr = left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression ? lAs : right as BinaryExpressionSyntax;
+            //            var diagnostic = Diagnostic.Create(Descriptor, asExpr!.GetLocation());
+            //            context.ReportDiagnostic(diagnostic);
+            //        }
+            //    }
+            //    else if (binaryExpr.IsKind(SyntaxKind.LogicalAndExpression))
+            //    {
+
+            //    }
+            //}
         }
     }
-
+    private static IEnumerable<SyntaxNode> GetAllNodes(SyntaxNode root)
+    {
+        foreach (var descendant in root.DescendantNodesAndSelf())
+        {
+            yield return descendant;
+        }
+    }
     private static bool IsAsExpressionComparedToNull(ExpressionSyntax expressionA, ExpressionSyntax expressionB)
     {
         return expressionA is BinaryExpressionSyntax binaryExpressionSyntax && binaryExpressionSyntax.IsKind(SyntaxKind.AsExpression) &&
