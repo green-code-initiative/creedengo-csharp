@@ -3,13 +3,13 @@
 [TestClass]
 public sealed class UseIsOperatorInsteadOfAsOperatorTests
 {
-    private static readonly AnalyzerDlg VerifyAsync = TestRunner.VerifyAsync<UseIsOperatorInsteadOfAsOperator>;
+    private static readonly CodeFixerDlg VerifyAndFixAsync = TestRunner.VerifyAsync<UseIsOperatorInsteadOfAsOperator, UseIsOperatorInsteadOfAsOperatorFixer>;
 
     [TestMethod]
-    public Task EmptyCodeAsync() => VerifyAsync("");
+    public Task EmptyCodeAsync() => VerifyAndFixAsync("");
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -18,11 +18,20 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if ([|x as string|] != null){ }
             }
         }
+        """,
         """
-        );
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (x is string){ }
+            }
+        }
+        """);
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsReversedAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsReversedAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -31,11 +40,20 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if (null != [|x as string|]){ }
             }
         }
+        """,
         """
-        );
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (x is string){ }
+            }
+        }
+        """);
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsReversedUselessParenthesisAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsReversedUselessParenthesisAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -44,12 +62,21 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if ((((null != [|x as string|])))){ }
             }
         }
+        """,
         """
-        );
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if ((((x is string)))){ }
+            }
+        }
+        """);
 
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWhileLoopAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWhileLoopAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -58,11 +85,20 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 while ([|x as string|] != null){ }
             }
         }
+        """,
         """
-    );
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                while (x is string){ }
+            }
+        }
+        """);
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsDoWhileLoopAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsDoWhileLoopAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -72,12 +108,22 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 while ([|x as string|] != null);
             }
         }
+        """,
         """
-);
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                do {}
+                while (x is string);
+            }
+        }
+        """);
 
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsForLoopAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsForLoopAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -86,11 +132,20 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 for (;[|x as string|] != null;){ }
             }
         }
+        """,
         """
-);
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                for (;x is string;){ }
+            }
+        }
+        """);
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsTypeCheckAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsTypeCheckAsync() => VerifyAndFixAsync("""
         class SubTestClass : TestClass { }
 
         class TestClass
@@ -106,11 +161,28 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 return new SubTestClass();
             }
         }
+        """,
+        """
+        class SubTestClass : TestClass { }
+
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (TestMethod2() is SubTestClass){ }
+            }
+
+            TestClass TestMethod2()
+            {
+                return new SubTestClass();
+            }
+        }
         """
     );
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsTernaryOperationAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsTernaryOperationAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -119,11 +191,43 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                var result = [|x as string|] != null ? x : "World";
             }
         }
+        """,
+        """
+        class TestClass
+        {
+            void TestMethod()
+            {
+               var x = "Hello";
+               var result = x is string ? x : "World";
+            }
+        }
+        """);
+
+        [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsTernaryOperationNotNullComparisonAsync() => VerifyAndFixAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+               var x = "Hello";
+               var result = x as string != "toto" ? x : "World";
+            }
+        }
+        """,
+        """
+        class TestClass
+        {
+            void TestMethod()
+            {
+               var x = "Hello";
+               var result = x as string != "toto" ? x : "World";
+            }
+        }
         """);
 
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -133,11 +237,21 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if ([|x as string|] != null && booleen) { }
             }
         }
+        """, """
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleen = x.Length > 0;
+                if (x is string && booleen) { }
+            }
+        }
         """
         );
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionRevertAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionRevertAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -147,11 +261,21 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if (null != [|x as string|] && booleen){ }
             }
         }
+        """, """
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleen = x.Length > 0;
+                if (x is string && booleen){ }
+            }
+        }
         """
         );
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWithInversedLogicalExpressionAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithInversedLogicalExpressionAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -161,11 +285,21 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if (booleen || [|x as string|] != null){ }
             }
         }
+        """, """
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleen = x.Length > 0;
+                if (booleen || x is string){ }
+            }
+        }
         """
         );
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWithMultipleLogicalExpressionAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithMultipleLogicalExpressionAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -176,11 +310,22 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if (booleenA || [|x as string|] != null && booleenB){ }
             }
         }
+        """, """
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleenA = x.Length > 0;
+                var booleenB = x.Length > 0;
+                if (booleenA || x is string && booleenB){ }
+            }
+        }
         """
         );
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWithMultipleAsExpressionAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithMultipleAsExpressionAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
@@ -191,11 +336,31 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
                 if (booleen || [|x as string|] != null && [|y as TestClass|] != null){ }
             }
         }
+        """, """
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var y = new TestClass();
+                var booleen = x.Length > 0;
+                if (booleen || x is string && y is TestClass){ }
+            }
+        }
         """
         );
 
     [TestMethod]
-    public Task DoNotUseAsOperatorInsteadOfIsWithNegativeConditionalAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsWithNegativeConditionalAsync() => VerifyAndFixAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (!((x as string) == null)) { }
+            }
+        }
+        """, """
         class TestClass
         {
             void TestMethod()
@@ -208,7 +373,19 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         );
 
     [TestMethod]
-    public Task DoNotWarnWhenIsOperatorIsUsedAsync() => VerifyAsync("""
+    public Task DoNotWarnWhenIsOperatorIsUsedAsync() => VerifyAndFixAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (x is string)
+                {
+        
+                }
+            }
+        }
+        """, """
         class TestClass
         {
             void TestMethod()
@@ -224,13 +401,22 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         );
 
     [TestMethod]
-    public Task DoNotWarmWhenAsOperatorIsWhenOperatorIsDifferentOfNotEqualsAsync() => VerifyAsync("""
+    public Task DoNotWarmWhenAsOperatorIsWhenOperatorIsDifferentOfNotEqualsAsync() => VerifyAndFixAsync("""
         class TestClass
         {
             void TestMethod()
             {
                 var x = "Hello";
                 if ([|x as string|] == null) return;
+            }
+        }
+        """, """
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (x is string) return;
             }
         }
         """
