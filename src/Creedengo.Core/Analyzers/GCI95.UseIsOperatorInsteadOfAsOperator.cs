@@ -6,7 +6,7 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
 {
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.GCI94_UseIsOperatorInsteadOfAsOperator,
+        id: Rule.Ids.GCI95_UseIsOperatorInsteadOfAsOperator,
         title: "Use 'is' operator instead of 'as' operator",
         message: "'As' is used instead of 'is' to check type.",
         category: Rule.Categories.Usage,
