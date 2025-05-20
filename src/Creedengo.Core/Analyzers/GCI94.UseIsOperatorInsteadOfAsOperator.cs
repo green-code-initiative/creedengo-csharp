@@ -30,18 +30,23 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
     private void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
         var ifStmt = (IfStatementSyntax)context.Node;
-        if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr &&
-            binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
+        if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr)
         {
-
-            var left = binaryExpr.Left;
-            var right = binaryExpr.Right;
-
-            if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
+            if(binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
             {
-                var asExpr = left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression ? lAs : right as BinaryExpressionSyntax;
-                var diagnostic = Diagnostic.Create(Descriptor, asExpr!.GetLocation());
-                context.ReportDiagnostic(diagnostic);
+                var left = binaryExpr.Left;
+                var right = binaryExpr.Right;
+
+                if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
+                {
+                    var asExpr = left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression ? lAs : right as BinaryExpressionSyntax;
+                    var diagnostic = Diagnostic.Create(Descriptor, asExpr!.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+            else if (binaryExpr.IsKind(SyntaxKind.LogicalAndExpression))
+            {
+
             }
         }
     }

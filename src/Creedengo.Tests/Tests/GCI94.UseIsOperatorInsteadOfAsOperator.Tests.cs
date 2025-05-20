@@ -47,6 +47,24 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         """
         );
 
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsReversedAsync2() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                var booleen = x.Length > 0;
+                if (null != [|x as string|] && booleen)
+                {
+        
+                }
+            }
+        }
+        """
+        );
+
     [TestMethod]
     public Task DoNotWarnWhenIsOperatorIsUsedAsync() => VerifyAsync("""
         class TestClass
