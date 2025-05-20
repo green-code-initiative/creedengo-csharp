@@ -1,0 +1,45 @@
+﻿
+using Microsoft.CodeAnalysis.CSharp;
+
+namespace Creedengo.Tests.Tests;
+
+/// <summary>GCI92: Use Length to test empty strings.</summary>
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
+{
+    /// <summary>The diagnostic descriptor.</summary>
+    public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
+        id: Rule.Ids.GCI94_UseIsOperatorInsteadOfAsOperator,
+        title: "Use 'is' operator instead of 'as' operator",
+        message: "'As' is used instead of 'is' to check type.",
+        category: Rule.Categories.Usage,
+        severity: DiagnosticSeverity.Warning,
+        description: "Use 'is' instead of 'as' to improve readability and performance.");
+
+    /// <inheritdoc/>
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+
+    /// <inheritdoc/>
+    public override void Initialize(AnalysisContext context){
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+        context.EnableConcurrentExecution();
+        context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.IfStatement);
+    }
+
+    private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+    {
+        var ifStmt = (IfStatementSyntax)context.Node;
+        if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr &&
+            binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
+        {
+            if (binaryExpr.Left is BinaryExpressionSyntax asExpr &&
+                asExpr.IsKind(SyntaxKind.AsExpression) &&
+                binaryExpr.Right.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                var diagnostic = Diagnostic.Create(Descriptor, asExpr.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+    }
+}
