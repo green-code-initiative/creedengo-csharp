@@ -127,4 +127,11 @@ internal static class SymbolExtensions
             IEventSymbol eventSymbol => eventSymbol.OverriddenEvent,
             _ => null,
         };
+
+    internal static SyntaxNode GetSyntax(this ISymbol symbol, CancellationToken cancellationToken = default)
+    {
+        return symbol
+            .DeclaringSyntaxReferences[0]
+            .GetSyntax(cancellationToken);
+    }
 }

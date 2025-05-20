@@ -9,117 +9,162 @@ public sealed class UnnecessaryAssignmentTests
     [TestMethod]
     public Task EmptyCodeAsync() => VerifyAsync("");
 
-    //[TestMethod]
-    //public Task NominalCase() => VerifyAsync("""
-    //    class TestClass
-    //    {
-    //        int TestMethod()
-    //        {
-    //            if (condition)
-    //            {
-    //                x = 1;
-    //            }
-    //            else
-    //            {
-    //                x = 2;
-    //            }
+    [TestMethod]
+    public Task TestIfStatement() => VerifyAsync("""
+        class C
+        {
+            int M()
+            {
+                bool f = false;
+                int x = 1; // x
+                [|if (f)
+                {
+                    x = 2;
+                }
+                else if (f)
+                {
+                    x = 3;
+                }|]
 
-    //            return x;
-    //        }
-    //    }
-    //    """, """
-    //    class TestClass
-    //    {
-    //        int TestMethod()
-    //        {
-    //            if (condition)
-    //            {
-    //                return 1;
-    //            }
-    //            else
-    //            {
-    //                return 2;
-    //            }
-    //        }
-    //    }
-    //    """);
+                return x;
+            }
+        }
+        """);
+
 
     [TestMethod]
-    public Task NominalCase() => VerifyAsync("""
-        class TestClass
+    public Task TestIfStatementThrow() => VerifyAsync("""
+        using System;
+
+        class C
         {
-            int TestMethod(bool condition)
+            int M()
             {
-                int x;
-                if (condition)
+                bool f = false;
+
+                int x = 1;
+                [|if (f)
                 {
-                    [|x = 1|];
+                    x = 2;
+                }
+                else if (f)
+                {
+                    x = 3;
                 }
                 else
                 {
-                    [|x = 2|];
-                }
+                    throw new Exception();
+                }|]
 
                 return x;
             }
         }
         """);
 
-
     [TestMethod]
-    public Task NominalCase2() => VerifyAsync("""
-        class TestClass
+    public Task TestSwitchStatement() => VerifyAsync("""
+        class C
         {
-            int TestMethod(bool condition)
+            int M()
             {
-                int x;
-                if (condition)
+                string s = null;
+                int x = 1; // x
+                [|switch (s)
                 {
-                    [|x = 1|];
-                }
-                else
+                    case "a":
+                        {
+                            x = 2;
+                            break;
+                        }
+                    case "b":
+                        x = 3;
+                        break;
+                }|]
+
+                return x;
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task TestSwitchStatementThrow() => VerifyAsync("""
+        using System;
+
+        class C
+        {
+            int M()
+            {
+                string s = null;
+
+                int x = 1;
+                [|switch (s)
                 {
-                    [|x = 2|];
-                }
+                    case "a":
+                        {
+                            x = 2;
+                            break;
+                        }
+                    case "b":
+                        x = 3;
+                        break;
+                    default:
+                        throw new Exception();
+                }|]
 
-                [|x += 3|];
                 return x;
             }
         }
         """);
 
     [TestMethod]
-    public Task NominalCase3() => VerifyAsync("""
-        class TestClass
+    public Task TestNoDiagnosticForPolymorphicIf() => VerifyAsync("""
+        class A {}
+        class B {}
+        class C
         {
-            int TestMethod(bool condition)
+            void M()
             {
-                int x;
-                
-                [|x = 1|];
-                
-                [|x = 2|];
-                [|x = 3|];
-                [|x = 4|];
-        
-                return x;
+                var fun = (bool flag) =>
+                {
+                    object x;
+                    if (flag)
+                    {
+                        x = new A();
+                    }
+                    else
+                    {
+                        x = new B();
+                    }
+
+                    return x;
+                };
             }
         }
         """);
 
     [TestMethod]
-    public Task NominalCase4() => VerifyAsync("""
-        class TestClass
+    public Task TestNoDiagnosticForPolymorphicSwitch() => VerifyAsync("""
+        class A {}
+        class B {}
+        class C
         {
-            (int, int) TestMethod(bool condition)
+            void M()
             {
-                var x = (10, 20);
-                
-                [|x = (15, 30)|];
-                
-                [|x = (20, 21)|];
-                
-                return x;
+                var fun = (object o) =>
+                {
+                    object x;
+                    switch(o)
+                    {
+                        case int:
+                            x = new A();
+                            break;
+                        default:
+                            x = new B();
+                            break;
+                    }
+
+                    return x;
+                };
             }
         }
         """);
