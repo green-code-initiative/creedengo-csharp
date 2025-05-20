@@ -34,6 +34,93 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         """
         );
 
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsReversedUselessParenthesisAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if ((((null != [|x as string|])))){ }
+            }
+        }
+        """
+        );
+
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsWhileLoopAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                while ([|x as string|] != null){ }
+            }
+        }
+        """
+    );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsDoWhileLoopAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                do {}
+                while ([|x as string|] != null);
+            }
+        }
+        """
+);
+
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsForLoopAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                for (;[|x as string|] != null;){ }
+            }
+        }
+        """
+);
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsTypeCheckAsync() => VerifyAsync("""
+        class SubTestClass : TestClass { }
+
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if ([|TestMethod2() as SubTestClass|] != null){ }
+            }
+
+            TestClass TestMethod2()
+            {
+                return new SubTestClass();
+            }
+        }
+        """
+    );
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsTernaryOperationAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+               var x = "Hello";
+               var result = [|x as string|] != null ? x : "World";
+            }
+        }
+        """);
+
 
     [TestMethod]
     public Task DoNotUseAsOperatorInsteadOfIsWithLogicalExpressionAsync() => VerifyAsync("""

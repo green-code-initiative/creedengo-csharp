@@ -25,13 +25,39 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.IfStatement);
+
+        SyntaxKind[] supportSyntaxKinds = [
+            SyntaxKind.IfStatement,
+            SyntaxKind.ConditionalExpression,
+            SyntaxKind.WhileStatement,
+            SyntaxKind.DoStatement,
+            SyntaxKind.ForStatement
+        ];
+
+        foreach (var item in supportSyntaxKinds)
+        {
+            context.RegisterSyntaxNodeAction(AnalyzeNode, item);
+        }
     }
 
     private void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
-        var ifStmt = (IfStatementSyntax)context.Node;
-        foreach (var node in GetAllNodes(ifStmt.Condition))
+        var condition = context.Node switch
+        {
+            IfStatementSyntax ifStatement => ifStatement.Condition,
+            ForStatementSyntax forStatement => forStatement.Condition,
+            WhileStatementSyntax whileStatement => whileStatement.Condition,
+            DoStatementSyntax dowhileStatement => dowhileStatement.Condition,
+            ConditionalExpressionSyntax conditionalExpression => conditionalExpression.Condition,
+            _ => null
+        };
+
+        if (condition == null)
+        {
+            return;
+        }
+
+         foreach (var node in GetAllNodes(condition))
         {
             if (node is BinaryExpressionSyntax binaryExpr &&
                 binaryExpr.Kind() == SyntaxKind.NotEqualsExpression)
@@ -59,25 +85,6 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
                     }
                 }
             }
-            //    if (ifStmt.Condition is BinaryExpressionSyntax binaryExpr)
-            //{
-            //    if(binaryExpr.IsKind(SyntaxKind.NotEqualsExpression))
-            //    {
-            //        var left = binaryExpr.Left;
-            //        var right = binaryExpr.Right;
-
-            //        if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
-            //        {
-            //            var asExpr = left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression ? lAs : right as BinaryExpressionSyntax;
-            //            var diagnostic = Diagnostic.Create(Descriptor, asExpr!.GetLocation());
-            //            context.ReportDiagnostic(diagnostic);
-            //        }
-            //    }
-            //    else if (binaryExpr.IsKind(SyntaxKind.LogicalAndExpression))
-            //    {
-
-            //    }
-            //}
         }
     }
     private static IEnumerable<SyntaxNode> GetAllNodes(SyntaxNode root)
