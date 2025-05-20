@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Creedengo.Tests.Tests;
 
-/// <summary>GCI92: Use Length to test empty strings.</summary>
+/// <summary>GCI95: Use is operator instead of as operator.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
 {
