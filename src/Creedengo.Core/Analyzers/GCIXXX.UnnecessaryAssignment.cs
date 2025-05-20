@@ -34,7 +34,10 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
             return;
 
         var parent = ifStatement.Parent;
-        SyntaxList<StatementSyntax>? statements = parent?.Kind() switch
+        if (parent is null)
+            return;
+
+        SyntaxList<StatementSyntax>? statements = parent.Kind() switch
         {
             SyntaxKind.Block => ((BlockSyntax)parent).Statements,
             SyntaxKind.SwitchSection => ((SwitchSectionSyntax)parent).Statements,
@@ -48,7 +51,7 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
         var expression = returnStatement?.Expression;
 
-        if (expression is null)
+        if (returnStatement is null || expression is null)
             return;
 
         if (ifStatement.SpanOrTrailingTriviaContainsDirectives())
@@ -72,6 +75,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
             .GetTypeInfo(expression, cancellationToken)
             .Type;
 
+        if (returnTypeSymbol is null)
+            return;
+
         var current = ifStatement;
         while (current != null)
         {
@@ -79,6 +85,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
             if (statement.IsKind(SyntaxKind.Block))
                 statement = ((BlockSyntax)statement).Statements.LastOrDefault();
+
+            if (statement is null)
+                return;
 
             if (!statement.IsKind(SyntaxKind.ThrowStatement)
                 && !IsSymbolAssignedInStatementWithCorrectType(symbol, statement, semanticModel, returnTypeSymbol, cancellationToken))
@@ -97,7 +106,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         var switchStatement = (SwitchStatementSyntax)context.Node;
 
         var parent = switchStatement.Parent;
-        SyntaxList<StatementSyntax>? statements = parent?.Kind() switch
+        if (parent is null)
+            return;
+        SyntaxList<StatementSyntax>? statements = parent.Kind() switch
         {
             SyntaxKind.Block => ((BlockSyntax)parent).Statements,
             SyntaxKind.SwitchSection => ((SwitchSectionSyntax)parent).Statements,
@@ -109,7 +120,10 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
         var returnStatement = FindReturnStatementBelow(statements.Value, switchStatement);
 
-        var expression = returnStatement?.Expression;
+        if (returnStatement is null)
+            return;
+
+        var expression = returnStatement.Expression;
 
         if (expression is null)
             return;
@@ -129,7 +143,7 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
         var returnTypeSymbol = semanticModel.GetTypeInfo(expression, cancellationToken).Type;
 
-        if (symbol is null)
+        if (symbol is null || returnTypeSymbol is null)
             return;
 
         if (!IsLocalDeclaredInScopeOrNonRefOrOutParameterOfEnclosingSymbol(symbol, parent, semanticModel, cancellationToken))
@@ -231,8 +245,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
     private static bool IsSymbolAssignedInStatementWithCorrectType(ISymbol symbol, StatementSyntax statement, SemanticModel semanticModel, ITypeSymbol typeSymbol, CancellationToken cancellationToken)
     {
-        var expression = (statement as ExpressionStatementSyntax)?.Expression;
-        var assignmentExpression = expression as AssignmentExpressionSyntax;
+        var expression = statement is ExpressionStatementSyntax syntax ? syntax.Expression : null;
+        if (expression is not AssignmentExpressionSyntax assignmentExpression)
+            return false;
 
         var leftSymbol = semanticModel
         .GetSymbolInfo(assignmentExpression.Left, cancellationToken)
