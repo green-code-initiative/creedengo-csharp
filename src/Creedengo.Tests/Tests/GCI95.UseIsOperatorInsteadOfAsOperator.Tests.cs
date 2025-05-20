@@ -422,4 +422,17 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         """
         );
 
+    [TestMethod]
+    public Task DoNotWarmWhenUsingAsWithNullConditionalAccess() => VerifyAndFixAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if ((x as string)?.Length != 0){ }
+            }
+        }
+        """
+        );
+
 }

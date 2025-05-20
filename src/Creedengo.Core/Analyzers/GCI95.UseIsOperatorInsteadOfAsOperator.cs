@@ -49,36 +49,33 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
             _ => null
         };
 
-        if (condition == null)
-        {
-            return;
-        }
+        if (condition == null) return;
 
-         foreach (var node in GetAllNodes(condition))
+        foreach (var node in GetAllNodes(condition))
         {
-            if (node is BinaryExpressionSyntax binaryExpr)
+            if (node is not BinaryExpressionSyntax binaryExpr)
             {
-                ExpressionSyntax left = binaryExpr.Left;
-                ExpressionSyntax right = binaryExpr.Right;
+                continue;
+            }
+            var left = binaryExpr.Left;
+            var right = binaryExpr.Right;
 
-                if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
+            if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
+            {
+                BinaryExpressionSyntax? asExpr;
+                if (left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression)
                 {
-                    // Diagnostic sur la partie "as"
-                    BinaryExpressionSyntax? asExpr;
-                    if (left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression)
-                    {
-                        asExpr = lAs;
-                    }
-                    else
-                    {
-                        asExpr = right is BinaryExpressionSyntax rAs && rAs.Kind() == SyntaxKind.AsExpression ? rAs : null;
-                    }
+                    asExpr = lAs;
+                }
+                else
+                {
+                    asExpr = right is BinaryExpressionSyntax rAs && rAs.Kind() == SyntaxKind.AsExpression ? rAs : null;
+                }
 
-                    if (asExpr != null)
-                    {
-                        var diagnostic = Diagnostic.Create(Descriptor, asExpr.GetLocation());
-                        context.ReportDiagnostic(diagnostic);
-                    }
+                if (asExpr != null)
+                {
+                    var diagnostic = Diagnostic.Create(Descriptor, asExpr.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
                 }
             }
         }
