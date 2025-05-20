@@ -128,10 +128,7 @@ internal static class SymbolExtensions
             _ => null,
         };
 
-    internal static SyntaxNode GetSyntax(this ISymbol symbol, CancellationToken cancellationToken = default)
-    {
-        return symbol
+    internal static SyntaxNode GetSyntax(this ISymbol symbol, CancellationToken cancellationToken = default) => symbol
             .DeclaringSyntaxReferences[0]
             .GetSyntax(cancellationToken);
-    }
 }

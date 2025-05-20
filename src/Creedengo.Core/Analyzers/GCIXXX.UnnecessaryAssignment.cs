@@ -1,4 +1,5 @@
 ﻿namespace Creedengo.Core.Analyzers;
+
 /// <summary>GCIXXX: Unnecessary assignment.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class UnecessaryAssignment : DiagnosticAnalyzer
@@ -43,9 +44,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (statements is null)
             return;
 
-        ReturnStatementSyntax? returnStatement = FindReturnStatementBelow(statements.Value, ifStatement);
+        var returnStatement = FindReturnStatementBelow(statements.Value, ifStatement);
 
-        ExpressionSyntax expression = returnStatement?.Expression;
+        var expression = returnStatement?.Expression;
 
         if (expression is null)
             return;
@@ -56,10 +57,10 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (returnStatement.SpanOrLeadingTriviaContainsDirectives())
             return;
 
-        SemanticModel semanticModel = context.SemanticModel;
-        CancellationToken cancellationToken = context.CancellationToken;
+        var semanticModel = context.SemanticModel;
+        var cancellationToken = context.CancellationToken;
 
-        ISymbol? symbol = context.SemanticModel.GetSymbolInfo(expression).Symbol;
+        var symbol = context.SemanticModel.GetSymbolInfo(expression).Symbol;
 
         if (symbol is null)
             return;
@@ -67,14 +68,14 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (!IsLocalDeclaredInScopeOrNonRefOrOutParameterOfEnclosingSymbol(symbol, parent, semanticModel, cancellationToken))
             return;
 
-        ITypeSymbol returnTypeSymbol = Microsoft.CodeAnalysis.CSharp.CSharpExtensions
-            .GetTypeInfo(semanticModel, expression, cancellationToken)
+        var returnTypeSymbol = semanticModel
+            .GetTypeInfo(expression, cancellationToken)
             .Type;
 
         var current = ifStatement;
         while (current != null)
         {
-            StatementSyntax statement = current.Statement;
+            var statement = current.Statement;
 
             if (statement.IsKind(SyntaxKind.Block))
                 statement = ((BlockSyntax)statement).Statements.LastOrDefault();
@@ -106,9 +107,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (statements is null)
             return;
 
-        ReturnStatementSyntax returnStatement = FindReturnStatementBelow(statements.Value, switchStatement);
+        var returnStatement = FindReturnStatementBelow(statements.Value, switchStatement);
 
-        ExpressionSyntax expression = returnStatement?.Expression;
+        var expression = returnStatement?.Expression;
 
         if (expression is null)
             return;
@@ -119,15 +120,14 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (returnStatement.SpanOrLeadingTriviaContainsDirectives())
             return;
 
-        SemanticModel semanticModel = context.SemanticModel;
-        CancellationToken cancellationToken = context.CancellationToken;
+        var semanticModel = context.SemanticModel;
+        var cancellationToken = context.CancellationToken;
 
-
-        ISymbol symbol = Microsoft.CodeAnalysis.CSharp.CSharpExtensions
-            .GetSymbolInfo(semanticModel, expression, cancellationToken)
+        var symbol = semanticModel
+            .GetSymbolInfo(expression, cancellationToken)
             .Symbol;
 
-        ITypeSymbol returnTypeSymbol = semanticModel.GetTypeInfo(expression, cancellationToken).Type;
+        var returnTypeSymbol = semanticModel.GetTypeInfo(expression, cancellationToken).Type;
 
         if (symbol is null)
             return;
@@ -135,9 +135,9 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (!IsLocalDeclaredInScopeOrNonRefOrOutParameterOfEnclosingSymbol(symbol, parent, semanticModel, cancellationToken))
             return;
 
-        foreach (SwitchSectionSyntax section in switchStatement.Sections)
+        foreach (var section in switchStatement.Sections)
         {
-            SyntaxList<StatementSyntax> statements2 = section.Statements;
+            var statements2 = section.Statements;
 
             if (statements2.SingleOrDefaultNoThrow() is BlockSyntax block)
             {
@@ -179,7 +179,7 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
         if (index < statements.Count - 1)
         {
-            StatementSyntax nextStatement = statements[index + 1];
+            var nextStatement = statements[index + 1];
 
             if (nextStatement.IsKind(SyntaxKind.ReturnStatement))
                 return (ReturnStatementSyntax)nextStatement;
@@ -196,7 +196,7 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
                 {
                     var localSymbol = (ILocalSymbol)symbol;
 
-                    var localDeclarationStatement = localSymbol.GetSyntax(cancellationToken).Parent.Parent as LocalDeclarationStatementSyntax;
+                    var localDeclarationStatement = localSymbol.GetSyntax(cancellationToken).Parent?.Parent as LocalDeclarationStatementSyntax;
 
                     return localDeclarationStatement?.Parent == containingNode;
                 }
@@ -206,11 +206,11 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
                     if (parameterSymbol.RefKind == RefKind.None)
                     {
-                        ISymbol enclosingSymbol = semanticModel.GetEnclosingSymbol(containingNode.SpanStart, cancellationToken);
+                        var enclosingSymbol = semanticModel.GetEnclosingSymbol(containingNode.SpanStart, cancellationToken);
 
                         if (enclosingSymbol is not null)
                         {
-                            ImmutableArray<IParameterSymbol> parameters = enclosingSymbol.Kind switch
+                            var parameters = enclosingSymbol.Kind switch
                             {
                                 SymbolKind.Method => ((IMethodSymbol)symbol).Parameters,
                                 SymbolKind.Property => ((IPropertySymbol)symbol).Parameters,
@@ -231,18 +231,18 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
 
     private static bool IsSymbolAssignedInStatementWithCorrectType(ISymbol symbol, StatementSyntax statement, SemanticModel semanticModel, ITypeSymbol typeSymbol, CancellationToken cancellationToken)
     {
-        ExpressionSyntax? expression = (statement as ExpressionStatementSyntax)?.Expression;
-        AssignmentExpressionSyntax? toto = expression as AssignmentExpressionSyntax;
+        var expression = (statement as ExpressionStatementSyntax)?.Expression;
+        var assignmentExpression = expression as AssignmentExpressionSyntax;
 
-        ISymbol? leftSymbol = Microsoft.CodeAnalysis.CSharp.CSharpExtensions
-        .GetSymbolInfo(semanticModel, toto.Left, cancellationToken)
+        var leftSymbol = semanticModel
+        .GetSymbolInfo(assignmentExpression.Left, cancellationToken)
         .Symbol;
 
-        ITypeSymbol rightTypeSymbol = Microsoft.CodeAnalysis.CSharp.CSharpExtensions
-         .GetTypeInfo(semanticModel, toto.Right, cancellationToken)
+        var rightTypeSymbol = semanticModel
+         .GetTypeInfo(assignmentExpression.Right, cancellationToken)
          .Type;
 
-        return toto is not null
+        return assignmentExpression is not null
             && SymbolEqualityComparer.Default.Equals(leftSymbol, symbol)
             && SymbolEqualityComparer.Default.Equals(typeSymbol, rightTypeSymbol);
     }

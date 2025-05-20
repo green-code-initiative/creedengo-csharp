@@ -53,38 +53,15 @@ internal static class SyntaxNodeExtensions
     /// <summary>
     /// Returns true if a node parent's kind is the specified kind.
     /// </summary>
-    public static bool IsParentKind(this SyntaxNode? node, SyntaxKind kind)
-    {
-        return node?.Parent.IsKind(kind) == true;
-    }
+    public static bool IsParentKind(this SyntaxNode? node, SyntaxKind kind) => node?.Parent.IsKind(kind) == true;
 
-    internal static bool SpanOrTrailingTriviaContainsDirectives(this SyntaxNode node)
-    {
-        if (node is null)
-            throw new ArgumentNullException(nameof(node));
+    internal static bool SpanOrTrailingTriviaContainsDirectives(this SyntaxNode node) => node is null
+            ? throw new ArgumentNullException(nameof(node))
+            : node.ContainsDirectives
+            && !node.GetLeadingTrivia().Any(trivia => trivia.IsDirective);
 
-        return node.ContainsDirectives
-            && !node.GetLeadingTrivia().ContainsDirective();
-    }
-
-    internal static bool SpanOrLeadingTriviaContainsDirectives(this SyntaxNode node)
-    {
-        if (node is null)
-            throw new ArgumentNullException(nameof(node));
-
-        return node.ContainsDirectives
-            && !node.GetTrailingTrivia().ContainsDirective();
-    }
-
-    // rewrite this.
-    internal static bool ContainsDirective(this SyntaxTriviaList triviaList)
-    {
-        foreach (SyntaxTrivia trivia in triviaList)
-        {
-            if (trivia.IsDirective)
-                return true;
-        }
-
-        return false;
-    }
+    internal static bool SpanOrLeadingTriviaContainsDirectives(this SyntaxNode node) => node is null
+            ? throw new ArgumentNullException(nameof(node))
+            : node.ContainsDirectives
+            && !node.GetTrailingTrivia().Any(trivia => trivia.IsDirective);
 }
