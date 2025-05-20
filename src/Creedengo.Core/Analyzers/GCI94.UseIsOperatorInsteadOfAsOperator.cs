@@ -59,8 +59,7 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
 
          foreach (var node in GetAllNodes(condition))
         {
-            if (node is BinaryExpressionSyntax binaryExpr &&
-                binaryExpr.Kind() == SyntaxKind.NotEqualsExpression)
+            if (node is BinaryExpressionSyntax binaryExpr)
             {
                 ExpressionSyntax left = binaryExpr.Left;
                 ExpressionSyntax right = binaryExpr.Right;

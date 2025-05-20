@@ -223,4 +223,17 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         """
         );
 
+    [TestMethod]
+    public Task DoNotWarmWhenAsOperatorIsWhenOperatorIsDifferentOfNotEqualsAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if ([|x as string|] == null) return;
+            }
+        }
+        """
+        );
+
 }
