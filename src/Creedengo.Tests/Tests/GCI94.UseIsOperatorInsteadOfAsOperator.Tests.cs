@@ -9,40 +9,41 @@ namespace Creedengo.Tests.Tests;
 [TestClass]
 public sealed class UseIsOperatorInsteadOfAsOperatorTests
 {
-    private static readonly CodeFixerDlg VerifyAsync = TestRunner.VerifyAsync<UseIsOperatorInsteadOfAsOperator, UseIsOperatorInsteadOfAsOperatorFixer>;
+    private static readonly AnalyzerDlg VerifyAsync = TestRunner.VerifyAsync<UseIsOperatorInsteadOfAsOperator>;
 
     [TestMethod]
     public Task EmptyCodeAsync() => VerifyAsync("");
 
     [TestMethod]
-    public Task DontUseAsInsteadOfIsAsync() => VerifyAsync("""
+    public Task DoNotUseAsOperatorInsteadOfIsAsync() => VerifyAsync("""
         class TestClass
         {
             void TestMethod()
             {
                 var x = "Hello";
-                if (x as string != null)
+                if ([|x as string|] != null)
                 {
         
                 }
             }
         }
-        """,
-        ///,
-        //"""
-        //class TestClass
-        //{
-        //    void TestMethod()
-        //    {
-        //        var x = "Hello";
-        //        if (x is string)
-        //        {
-        
-        //        }
-        //    }
-        //}
-        //"""
+        """
+        );
 
+    [TestMethod]
+    public Task DoNotWarnWhenIsOperatorIsUsedAsync() => VerifyAsync("""
+        class TestClass
+        {
+            void TestMethod()
+            {
+                var x = "Hello";
+                if (x is string)
+                {
+        
+                }
+            }
+        }
+        """
         );
 
 }
