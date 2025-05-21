@@ -49,4 +49,19 @@ internal static class SyntaxNodeExtensions
             _ => default,
         };
     }
+
+    /// <summary>
+    /// Returns true if a node parent's kind is the specified kind.
+    /// </summary>
+    public static bool IsParentKind(this SyntaxNode? node, SyntaxKind kind) => node?.Parent.IsKind(kind) == true;
+
+    internal static bool SpanOrTrailingTriviaContainsDirectives(this SyntaxNode node) => node is null
+            ? throw new ArgumentNullException(nameof(node))
+            : node.ContainsDirectives
+            && !node.GetLeadingTrivia().Any(trivia => trivia.IsDirective);
+
+    internal static bool SpanOrLeadingTriviaContainsDirectives(this SyntaxNode node) => node is null
+            ? throw new ArgumentNullException(nameof(node))
+            : node.ContainsDirectives
+            && !node.GetTrailingTrivia().Any(trivia => trivia.IsDirective);
 }
