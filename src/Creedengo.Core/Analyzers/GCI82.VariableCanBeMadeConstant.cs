@@ -4,7 +4,7 @@
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = [SyntaxKind.LocalDeclarationStatement];
+    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = [SyntaxKind.LocalDeclarationStatement, SyntaxKind.FieldDeclaration];
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -29,52 +29,112 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 
     private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
-        var localDeclaration = (LocalDeclarationStatementSyntax)context.Node;
-
-        // Make sure the declaration isn't already const
-        if (localDeclaration.Modifiers.Any(SyntaxKind.ConstKeyword))
-            return;
-
-        // Ensure that all variables in the local declaration have initializers that are assigned with constant values
-        var variableType = context.SemanticModel.GetTypeInfo(localDeclaration.Declaration.Type, context.CancellationToken).ConvertedType;
-        if (variableType is null) return;
-        foreach (var variable in localDeclaration.Declaration.Variables)
+        switch (context.Node)
         {
-            var initializer = variable.Initializer;
-            if (initializer is null) return;
+            case LocalDeclarationStatementSyntax localDeclaration:
+                {
+                    // Make sure the declaration isn't already const
+                    if (localDeclaration.Modifiers.Any(SyntaxKind.ConstKeyword))
+                        return;
 
-            var constantValue = context.SemanticModel.GetConstantValue(initializer.Value, context.CancellationToken);
-            if (!constantValue.HasValue) return;
+                    // Ensure that all variables in the local declaration have initializers that are assigned with constant values
+                    var variableType = context.SemanticModel.GetTypeInfo(localDeclaration.Declaration.Type, context.CancellationToken).ConvertedType;
+                    if (variableType is null) return;
+                    foreach (var variable in localDeclaration.Declaration.Variables)
+                    {
+                        var initializer = variable.Initializer;
+                        if (initializer is null) return;
 
-            // Ensure that the initializer value can be converted to the type of the local declaration without a user-defined conversion.
-            var conversion = context.SemanticModel.ClassifyConversion(initializer.Value, variableType);
-            if (!conversion.Exists || conversion.IsUserDefined) return;
+                        var constantValue = context.SemanticModel.GetConstantValue(initializer.Value, context.CancellationToken);
+                        if (!constantValue.HasValue) return;
 
-            // Special cases:
-            // * If the constant value is a string, the type of the local declaration must be string
-            // * If the constant value is null, the type of the local declaration must be a reference type
-            if (constantValue.Value is string)
-            {
-                if (variableType.SpecialType is not SpecialType.System_String) return;
-            }
-            else if (variableType.IsReferenceType && constantValue.Value is not null)
-            {
-                return;
-            }
+                        // Ensure that the initializer value can be converted to the type of the local declaration without a user-defined conversion.
+                        var conversion = context.SemanticModel.ClassifyConversion(initializer.Value, variableType);
+                        if (!conversion.Exists || conversion.IsUserDefined) return;
+
+                        // Special cases:
+                        // * If the constant value is a string, the type of the local declaration must be string
+                        // * If the constant value is null, the type of the local declaration must be a reference type
+                        if (constantValue.Value is string)
+                        {
+                            if (variableType.SpecialType is not SpecialType.System_String) return;
+                        }
+                        else if (variableType.IsReferenceType && constantValue.Value is not null)
+                        {
+                            return;
+                        }
+                    }
+
+                    // Perform data flow analysis on the local declaration
+                    var dataFlowAnalysis = context.SemanticModel.AnalyzeDataFlow(localDeclaration);
+                    if (dataFlowAnalysis is null) return;
+
+                    foreach (var variable in localDeclaration.Declaration.Variables)
+                    {
+                        // Retrieve the local symbol for each variable in the local declaration and ensure that it is not written outside of the data flow analysis region
+                        var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken);
+                        if (variableSymbol is null || dataFlowAnalysis.WrittenOutside.Contains(variableSymbol))
+                            return;
+                    }
+
+                    context.ReportDiagnostic(Diagnostic.Create(Descriptor, context.Node.GetLocation()));
+                    break;
+                }
+            case FieldDeclarationSyntax fieldDecl:
+                {
+                    // Ignore const fields
+                    if (fieldDecl.Modifiers.Any(SyntaxKind.ConstKeyword))
+                        return;
+
+                    // Only static readonly fields
+                    if (!fieldDecl.Modifiers.Any(SyntaxKind.StaticKeyword) ||
+                        !fieldDecl.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+                        return;
+
+                    var variableType = context.SemanticModel.GetTypeInfo(fieldDecl.Declaration.Type, context.CancellationToken).ConvertedType;
+                    if (variableType is null) return;
+
+                    foreach (var variable in fieldDecl.Declaration.Variables)
+                    {
+                        if (variable.Initializer is null) return;
+
+                        var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken) as IFieldSymbol;
+                        if (variableSymbol is null) return;
+
+                        // Only allow types that can be const
+                        if (!IsAllowedConstType(variableSymbol.Type)) return;
+
+                        var constantValue = context.SemanticModel.GetConstantValue(variable.Initializer.Value, context.CancellationToken);
+                        if (!constantValue.HasValue) return;
+                    }
+
+                    context.ReportDiagnostic(Diagnostic.Create(Descriptor, fieldDecl.GetLocation()));
+                    break;
+                }
         }
+    }
 
-        // Perform data flow analysis on the local declaration
-        var dataFlowAnalysis = context.SemanticModel.AnalyzeDataFlow(localDeclaration);
-        if (dataFlowAnalysis is null) return;
-
-        foreach (var variable in localDeclaration.Declaration.Variables)
+    private static bool IsAllowedConstType(ITypeSymbol type)
+    {
+        switch (type.SpecialType)
         {
-            // Retrieve the local symbol for each variable in the local declaration and ensure that it is not written outside of the data flow analysis region
-            var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken);
-            if (variableSymbol is null || dataFlowAnalysis.WrittenOutside.Contains(variableSymbol))
-                return;
+            case SpecialType.System_Boolean:
+            case SpecialType.System_Byte:
+            case SpecialType.System_SByte:
+            case SpecialType.System_Char:
+            case SpecialType.System_Decimal:
+            case SpecialType.System_Double:
+            case SpecialType.System_Single:
+            case SpecialType.System_Int32:
+            case SpecialType.System_UInt32:
+            case SpecialType.System_Int64:
+            case SpecialType.System_UInt64:
+            case SpecialType.System_Int16:
+            case SpecialType.System_UInt16:
+            case SpecialType.System_String:
+                return true;
+            default:
+                return false;
         }
-
-        context.ReportDiagnostic(Diagnostic.Create(Descriptor, context.Node.GetLocation()));
     }
 }
