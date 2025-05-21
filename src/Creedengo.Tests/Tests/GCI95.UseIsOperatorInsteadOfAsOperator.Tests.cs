@@ -97,6 +97,47 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         }
         """);
 
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsReturnAsync() => VerifyAndFixAsync("""
+        class TestClass
+        {
+            bool TestMethod(string x)
+            {
+                return [|x as string|] != null;
+            }
+        }
+        """,
+        """
+        class TestClass
+        {
+            bool TestMethod(string x)
+            {
+                return x is string;
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task DoNotUseAsOperatorInsteadOfIsReturnWithoutAsAsync() => VerifyAndFixAsync("""
+        class TestClass
+        {
+            string TestMethod(string x)
+            {
+                return "Hello";
+            }
+        }
+        """,
+        """
+        class TestClass
+        {
+            string TestMethod(string x)
+            {
+                return "Hello";
+            }
+        }
+        """);
+
     [TestMethod]
     public Task DoNotUseAsOperatorInsteadOfIsDoWhileLoopAsync() => VerifyAndFixAsync("""
         class TestClass

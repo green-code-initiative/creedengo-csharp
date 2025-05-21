@@ -28,7 +28,8 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
             SyntaxKind.ConditionalExpression,
             SyntaxKind.WhileStatement,
             SyntaxKind.DoStatement,
-            SyntaxKind.ForStatement
+            SyntaxKind.ForStatement,
+            SyntaxKind.ReturnStatement
         ];
 
         foreach (var item in supportSyntaxKinds)
@@ -46,6 +47,7 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
             WhileStatementSyntax whileStatement => whileStatement.Condition,
             DoStatementSyntax dowhileStatement => dowhileStatement.Condition,
             ConditionalExpressionSyntax conditionalExpression => conditionalExpression.Condition,
+            ReturnStatementSyntax returnStatement => returnStatement.Expression,
             _ => null
         };
 
