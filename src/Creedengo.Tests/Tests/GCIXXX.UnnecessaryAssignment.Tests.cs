@@ -9,6 +9,28 @@ public sealed class UnnecessaryAssignmentTests
     public Task EmptyCodeAsync() => VerifyAsync("");
 
     [TestMethod]
+    public Task TestGoodIfStatement() => VerifyAsync("""
+        class C
+        {
+            int M()
+            {
+                bool f = false;
+                
+                if (f)
+                {
+                    return 2;
+                }
+                else if (f)
+                {
+                    return 3;
+                }
+
+                return 1;
+            }
+        }
+        """);
+
+    [TestMethod]
     public Task TestSimpleIfStatement() => VerifyAsync("""
         class C
         {
@@ -102,6 +124,30 @@ public sealed class UnnecessaryAssignmentTests
         """);
 
     [TestMethod]
+    public Task TestGoodSwitchStatement() => VerifyAsync("""
+        class C
+        {
+            int M()
+            {
+                string s = null;
+                
+                switch (s)
+                {
+                    case "a":
+                        {
+                            return 2;
+                        }
+                    case "b":
+                        return 3;
+                }
+
+                return 1;
+            }
+        }
+        """);
+
+
+    [TestMethod]
     public Task TestSwitchStatement() => VerifyAsync("""
         class C
         {
@@ -122,6 +168,31 @@ public sealed class UnnecessaryAssignmentTests
                 }|]
 
                 return x;
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task TestSwitchStatementNoReturn() => VerifyAsync("""
+        class C
+        {
+            void M()
+            {
+                string s = null;
+                int x = 1; // x
+                switch (s)
+                {
+                    case "a":
+                        {
+                            x = 2;
+                            break;
+                        }
+                    case "b":
+                        x = 3;
+                        break;
+                }
+
+                x = 4;
             }
         }
         """);

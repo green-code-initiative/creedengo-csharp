@@ -33,9 +33,7 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
         if (ifStatement.IsSimpleIf())
             return;
 
-        var parent = ifStatement.Parent;
-        if (parent is null)
-            return;
+        var parent = ifStatement.Parent!;
 
         SyntaxList<StatementSyntax>? statements = parent.Kind() switch
         {
@@ -105,9 +103,8 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
     {
         var switchStatement = (SwitchStatementSyntax)context.Node;
 
-        var parent = switchStatement.Parent;
-        if (parent is null)
-            return;
+        var parent = switchStatement.Parent!;
+
         SyntaxList<StatementSyntax>? statements = parent.Kind() switch
         {
             SyntaxKind.Block => ((BlockSyntax)parent).Statements,
