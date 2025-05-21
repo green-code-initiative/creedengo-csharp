@@ -84,8 +84,13 @@ public sealed class UseIsOperatorInsteadOfAsOperatorFixer : CodeFixProvider
         ).WithTriviaFrom(binaryExpression);
 
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        var newRoot = root.ReplaceNode(binaryExpression, isExpression);
+        if (root is null) return document;
 
-        return document.WithSyntaxRoot(newRoot);
+        var newRoot = root.ReplaceNode(binaryExpression, isExpression);
+        return newRoot is null ? document : document.WithSyntaxRoot(newRoot);
     }
+
+    /// <inheritdoc/>
+    [ExcludeFromCodeCoverage]
+    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 }
