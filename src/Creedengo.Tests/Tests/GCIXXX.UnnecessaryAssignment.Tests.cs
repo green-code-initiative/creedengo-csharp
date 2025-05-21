@@ -9,6 +9,25 @@ public sealed class UnnecessaryAssignmentTests
     public Task EmptyCodeAsync() => VerifyAsync("");
 
     [TestMethod]
+    public Task TestSimpleIfStatement() => VerifyAsync("""
+        class C
+        {
+            int M()
+            {
+                bool f = false;
+                int x = 1; // x
+                if (f)
+                {
+                    x = 2;
+                }
+                
+                return x;
+            }
+        }
+        """);
+
+
+    [TestMethod]
     public Task TestIfStatement() => VerifyAsync("""
         class C
         {
@@ -26,6 +45,28 @@ public sealed class UnnecessaryAssignmentTests
                 }|]
 
                 return x;
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task TestIfStatementNoReturn() => VerifyAsync("""
+        class C
+        {
+            void M()
+            {
+                bool f = false;
+                int x = 1; // x
+                if (f)
+                {
+                    x = 2;
+                }
+                else if (f)
+                {
+                    x = 3;
+                }
+
+                x = 4;
             }
         }
         """);
