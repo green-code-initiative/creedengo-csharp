@@ -27,6 +27,11 @@ internal static class Rule
         public const string GCI91_UseWhereBeforeOrderBy = "GCI91";
         public const string GCI92_UseStringEmptyLength = "GCI92";
         public const string GCI93_ReturnTaskDirectly = "GCI93";
+        public const string GCI3962_ReplaceStaticReadonlyByConst = "GCI3962";
+        public const string GCIACV_NonReadOnlyStruct = "GCIACV";
+        public const string GCI95_UseIsOperatorInsteadOfAsOperator = "GCI95";
+        public const string GCIXX_UnecessaryAssignment = "GCIXX";
+        public const string GCI96_UseEventArgsDotEmpty = "GCI96";
     }
 
     /// <summary>Creates a diagnostic descriptor.</summary>
