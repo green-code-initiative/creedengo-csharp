@@ -30,6 +30,7 @@ internal static class Rule
         public const string GCI3962_ReplaceStaticReadonlyByConst = "GCI3962";
         public const string GCIACV_NonReadOnlyStruct = "GCIACV";
         public const string GCI95_UseIsOperatorInsteadOfAsOperator = "GCI95";
+        public const string GCIXX_UnecessaryAssignment = "GCIXX";
         public const string GCI96_UseEventArgsDotEmpty = "GCI96";
     }
 
