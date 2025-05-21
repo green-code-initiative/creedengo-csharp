@@ -22,24 +22,33 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            var parent = root.FindToken(diagnostic.Location.SourceSpan.Start).Parent;
-            if (parent is null) return;
+            var token = root.FindToken(diagnostic.Location.SourceSpan.Start);
+            var node = token.Parent?.AncestorsAndSelf().FirstOrDefault(n => n is LocalDeclarationStatementSyntax || n is FieldDeclarationSyntax);
+            if (node is null) continue;
 
-            foreach (var node in parent.AncestorsAndSelf())
-            {
-                if (node is not LocalDeclarationStatementSyntax declaration) continue;
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: "Make variable constant",
-                        createChangedDocument: token => RefactorAsync(context.Document, declaration, token),
-                        equivalenceKey: "Make variable constant"),
-                    diagnostic);
-                break;
-            }
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: "Make variable constant",
+                    createChangedDocument: ct => RefactorAsync(context.Document, node, ct),
+                    equivalenceKey: "Make variable constant"),
+                diagnostic);
         }
     }
 
-    private static async Task<Document> RefactorAsync(Document document, LocalDeclarationStatementSyntax localDecl, CancellationToken token)
+    private static async Task<Document> RefactorAsync(Document document, SyntaxNode node, CancellationToken token)
+    {
+        switch (node)
+        {
+            case LocalDeclarationStatementSyntax localDecl:
+                return await RefactorLocalAsync(document, localDecl, token).ConfigureAwait(false);
+            case FieldDeclarationSyntax fieldDecl:
+                return await RefactorFieldAsync(document, fieldDecl, token).ConfigureAwait(false);
+            default:
+                return document;
+        }
+    }
+
+    private static async Task<Document> RefactorLocalAsync(Document document, LocalDeclarationStatementSyntax localDecl, CancellationToken token)
     {
         // Remove the leading trivia from the local declaration.
         var firstToken = localDecl.GetFirstToken();
@@ -63,24 +72,78 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
             .WithDeclaration(varDecl)
             .WithAdditionalAnnotations(Formatter.Annotation);
 
-        return await document.WithUpdatedRoot(localDecl, formattedLocal).ConfigureAwait(false);
+        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
+        if (root is null) return document;
+        var newRoot = root.ReplaceNode(localDecl, formattedLocal);
+        return document.WithSyntaxRoot(newRoot);
+    }
 
-        static async Task<VariableDeclarationSyntax> GetDeclarationForVarAsync(Document document, VariableDeclarationSyntax varDecl, TypeSyntax varTypeName, CancellationToken token)
+    private static async Task<Document> RefactorFieldAsync(Document document, FieldDeclarationSyntax fieldDecl, CancellationToken token)
+    {
+        // Remove static and readonly, add const after access modifiers
+        var modifiers = fieldDecl.Modifiers;
+        var accessModifiers = modifiers.Where(m =>
+            m.IsKind(SyntaxKind.PublicKeyword) ||
+            m.IsKind(SyntaxKind.PrivateKeyword) ||
+            m.IsKind(SyntaxKind.ProtectedKeyword) ||
+            m.IsKind(SyntaxKind.InternalKeyword)).ToList();
+        var otherModifiers = modifiers.Where(m =>
+            !m.IsKind(SyntaxKind.PublicKeyword) &&
+            !m.IsKind(SyntaxKind.PrivateKeyword) &&
+            !m.IsKind(SyntaxKind.ProtectedKeyword) &&
+            !m.IsKind(SyntaxKind.InternalKeyword) &&
+            !m.IsKind(SyntaxKind.StaticKeyword) &&
+            !m.IsKind(SyntaxKind.ReadOnlyKeyword)).ToList();
+
+        var constToken = SyntaxFactory.Token(fieldDecl.GetLeadingTrivia(), SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
+        var newModifiers = new SyntaxTokenList();
+        newModifiers = newModifiers.AddRange(accessModifiers);
+        newModifiers = newModifiers.Add(constToken);
+        newModifiers = newModifiers.AddRange(otherModifiers);
+
+        // If the type is 'var', replace with the actual type
+        var declaration = fieldDecl.Declaration;
+        var typeSyntax = declaration.Type;
+        if (typeSyntax.IsVar)
         {
             var semanticModel = await document.GetSemanticModelAsync(token).ConfigureAwait(false);
-
-            if (semanticModel is null || semanticModel.GetAliasInfo(varTypeName, token) is not null)
-                return varDecl; // Special case: Ensure that 'var' isn't actually an alias to another type (e.g. using var = System.String)
-
-            var type = semanticModel.GetTypeInfo(varTypeName, token).ConvertedType;
-            if (type is null || type.Name == "var") return varDecl; // Special case: Ensure that 'var' isn't actually a type named 'var'
-
-            // Create a new TypeSyntax for the inferred type. Be careful to keep any leading and trailing trivia from the var keyword.
-            return varDecl.WithType(SyntaxFactory
-                .ParseTypeName(type.ToDisplayString())
-                .WithLeadingTrivia(varTypeName.GetLeadingTrivia())
-                .WithTrailingTrivia(varTypeName.GetTrailingTrivia())
-                .WithAdditionalAnnotations(Simplifier.Annotation));
+            var type = semanticModel?.GetTypeInfo(typeSyntax, token).ConvertedType;
+            if (type != null && type.Name != "var")
+            {
+                declaration = declaration.WithType(
+                    SyntaxFactory.ParseTypeName(type.ToDisplayString())
+                        .WithLeadingTrivia(typeSyntax.GetLeadingTrivia())
+                        .WithTrailingTrivia(typeSyntax.GetTrailingTrivia())
+                        .WithAdditionalAnnotations(Simplifier.Annotation));
+            }
         }
+
+        var newField = fieldDecl
+            .WithModifiers(newModifiers)
+            .WithDeclaration(declaration)
+            .WithAdditionalAnnotations(Formatter.Annotation);
+
+        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
+        if (root is null) return document;
+        var newRoot = root.ReplaceNode(fieldDecl, newField);
+        return document.WithSyntaxRoot(newRoot);
+    }
+
+    private static async Task<VariableDeclarationSyntax> GetDeclarationForVarAsync(Document document, VariableDeclarationSyntax varDecl, TypeSyntax varTypeName, CancellationToken token)
+    {
+        var semanticModel = await document.GetSemanticModelAsync(token).ConfigureAwait(false);
+
+        if (semanticModel is null || semanticModel.GetAliasInfo(varTypeName, token) is not null)
+            return varDecl; // Special case: Ensure that 'var' isn't actually an alias to another type (e.g. using var = System.String)
+
+        var type = semanticModel.GetTypeInfo(varTypeName, token).ConvertedType;
+        if (type is null || type.Name == "var") return varDecl; // Special case: Ensure that 'var' isn't actually a type named 'var'
+
+        // Create a new TypeSyntax for the inferred type. Be careful to keep any leading and trailing trivia from the var keyword.
+        return varDecl.WithType(SyntaxFactory
+            .ParseTypeName(type.ToDisplayString())
+            .WithLeadingTrivia(varTypeName.GetLeadingTrivia())
+            .WithTrailingTrivia(varTypeName.GetTrailingTrivia())
+            .WithAdditionalAnnotations(Simplifier.Annotation));
     }
 }

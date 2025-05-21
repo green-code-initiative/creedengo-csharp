@@ -9,6 +9,80 @@ public sealed class VariableCanBeMadeConstantTests
     public Task EmptyCodeAsync() => VerifyAsync("");
 
     [TestMethod]
+    public Task DontWarnOnConstAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            private const int x = 1;
+            private const string s = "Bar";
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnStaticReadonlyIntAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            [|private static readonly int x = 1;|]
+        }
+        """, """
+        public class TestClass
+        {
+            private const int x = 1;
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnStaticReadonlyStringAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            [|private static readonly string s = "Bar";|]
+        }
+        """, """
+        public class TestClass
+        {
+            private const string s = "Bar";
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnStaticReadonlyNonConstTypeAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            private static readonly object o = new object();
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnStaticReadonlyNonConstantValueAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            private static readonly int x = System.Environment.TickCount;
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnMultipleStaticReadonlyFieldsAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            [|private static readonly int a = 1;|]
+            [|private static readonly string b = "foo";|]
+        }
+        """, """
+        public class TestClass
+        {
+            private const int a = 1;
+            private const string b = "foo";
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnStaticReadonlyWithoutInitializerAsync() => VerifyAsync("""
+        public class TestClass
+        {
+            private static readonly int x;
+        }
+        """);
+
+    [TestMethod]
     public Task VariableCanBeConstAsync() => VerifyAsync("""
         using System;
         public class Program
