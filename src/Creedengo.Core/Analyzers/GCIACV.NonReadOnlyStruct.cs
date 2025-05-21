@@ -13,7 +13,7 @@ public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
         message: "Non-read-only struct should not be passed by read-only reference.",
         category: Rule.Categories.Performance,
         severity: DiagnosticSeverity.Warning,
-        description: "Using 'in' parameter modifier for non-readonly struct types can lead to defensive copies, causing performance degradation.");
+        description: "Using 'in' or 'ref readonly' parameter modifier for non-readonly struct types can lead to defensive copies, causing performance degradation.");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
@@ -31,30 +31,18 @@ public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
     {
         var methodDeclaration = (MethodDeclarationSyntax)context.Node;
         var semanticModel = context.SemanticModel;
-        var compilation = context.Compilation;
-
-        // Analyze each parameter in the method declaration
+        var compilation = context.Compilation;        // Analyze each parameter in the method declaration
         foreach (var parameter in methodDeclaration.ParameterList.Parameters)
         {
-            // Check if parameter has the 'in' keyword
-            if (!parameter.Modifiers.Any(SyntaxKind.InKeyword))
-                continue;
-
-            // Skip if parameter type is null
-            if (parameter.Type == null)
-                continue;
-
-            // Get the parameter type symbol
-            var parameterTypeSymbol = ModelExtensions.GetTypeInfo(semanticModel, parameter.Type).Type;
-            if (parameterTypeSymbol == null)
-                continue;
-
-            // Skip reference types (not structs)
-            if (!parameterTypeSymbol.IsValueType)
-                continue;
-
-            // Check if we're dealing with a named type symbol for a struct
-            if (parameterTypeSymbol is INamedTypeSymbol namedTypeSymbol)
+            // Check if the parameter has either 'in' keyword or 'ref readonly' modifiers
+            bool isReadOnlyReference = parameter.Modifiers.Any(SyntaxKind.InKeyword) || 
+                (parameter.Modifiers.Any(SyntaxKind.RefKeyword) && parameter.Modifiers.Any(SyntaxKind.ReadOnlyKeyword));
+            
+            if (isReadOnlyReference &&
+                parameter.Type != null &&
+                ModelExtensions.GetTypeInfo(semanticModel, parameter.Type).Type is { } parameterTypeSymbol &&
+                parameterTypeSymbol.IsValueType &&
+                parameterTypeSymbol is INamedTypeSymbol namedTypeSymbol)
             {
                 // For nested struct types or any other struct, check if it's readonly
                 if (!namedTypeSymbol.IsReadOnly)

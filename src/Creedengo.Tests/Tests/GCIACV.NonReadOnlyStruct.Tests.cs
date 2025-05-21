@@ -158,4 +158,72 @@ public sealed class NonReadOnlyStructTests
         {
         }
         """);
+        
+    [TestMethod]
+    public Task NoWarningOnRefReadOnlyWithReadOnlyStruct() => VerifyAsync("""
+        public readonly struct ReadOnlyTest
+        {
+            public void Method(ref readonly ReadOnlyTest test)
+            {
+            }
+        }
+        """);
+        
+    [TestMethod]
+    public Task WarningOnRefReadOnlyWithNonReadOnlyStruct() => VerifyAsync("""
+        public struct Test
+        {
+            public void Method(ref readonly [|Test|] test)
+            {
+            }
+        }
+        """, """
+        public struct Test
+        {
+            public void Method(ref Test test)
+            {
+            }
+        }
+        """);
+          [TestMethod]
+    public Task WarningOnRefReadOnlyWithNonReadOnlyStructRemoveReadOnly() => VerifyAsync("""
+        public struct Test
+        {
+            public void Method(ref readonly [|Test|] test)
+            {
+            }
+        }
+        """, """
+        public struct Test
+        {
+            public void Method(ref Test test)
+            {
+            }
+        }
+        """);
+          [TestMethod]
+    public Task WarningOnRefReadOnlyWithNonReadOnlyStructRemoveBoth() => VerifyAsync("""
+        public struct Test
+        {
+            public void Method(ref readonly [|Test|] test)
+            {
+            }
+        }
+        """, """
+        public struct Test
+        {
+            public void Method(ref Test test)
+            {
+            }
+        }
+        """);
+          [TestMethod]
+    public Task WarningOnMixedModifiersWithRefReadOnlyAndIn() => VerifyAsync("""
+        public struct Test
+        {
+            public void Method(ref readonly [|Test|] test1, int value, in [|Test|] test2)
+            {
+            }
+        }
+        """);
 }
