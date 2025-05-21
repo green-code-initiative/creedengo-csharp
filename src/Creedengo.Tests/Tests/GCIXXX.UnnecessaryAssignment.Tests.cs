@@ -3,7 +3,6 @@
 [TestClass]
 public sealed class UnnecessaryAssignmentTests
 {
-    //private static readonly CodeFixerDlg VerifyAsync = TestRunner.VerifyAsync<UnecessaryAssignment, UnnecessaryAssignmentFixer>;
     private static readonly AnalyzerDlg VerifyAsync = TestRunner.VerifyAsync<UnecessaryAssignment>;
 
     [TestMethod]
