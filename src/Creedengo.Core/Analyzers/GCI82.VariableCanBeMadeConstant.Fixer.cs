@@ -1,6 +1,6 @@
 ﻿namespace Creedengo.Core.Analyzers;
 
-/// <summary>GCI82 fixer: Variable can be made constant (local or static readonly field).</summary>
+/// <summary>GCI82 fixer: Variable can be made constant.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(VariableCanBeMadeConstantFixer)), Shared]
 public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
 {
@@ -9,7 +9,7 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
     private static readonly ImmutableArray<string> _fixableDiagnosticIds = [VariableCanBeMadeConstant.Descriptor.Id];
 
     /// <inheritdoc/>
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    [ExcludeFromCodeCoverage]
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
     /// <inheritdoc/>
@@ -28,7 +28,7 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: "Rendre la variable constante",
+                    title: "Make variable constant",
                     createChangedDocument: ct => RefactorAsync(context.Document, node, ct),
                     equivalenceKey: "Make variable constant"),
                 diagnostic);
@@ -40,72 +40,78 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
         switch (node)
         {
             case LocalDeclarationStatementSyntax localDecl:
-            {
-                // Remove the leading trivia from the local declaration.
-                var firstToken = localDecl.GetFirstToken();
-                var leadingTrivia = firstToken.LeadingTrivia;
-                var trimmedLocal = leadingTrivia.Any()
-                    ? localDecl.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(SyntaxTriviaList.Empty))
-                    : localDecl;
-
-                // Create a const token with the leading trivia.
-                var constToken = SyntaxFactory.Token(leadingTrivia, SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
-
-                // If the type of the declaration is 'var', create a new type name for the inferred type.
-                var varDecl = localDecl.Declaration;
-                var varTypeName = varDecl.Type;
-                if (varTypeName.IsVar)
-                    varDecl = await GetDeclarationForVarAsync(document, varDecl, varTypeName, token).ConfigureAwait(false);
-
-                // Produce the new local declaration with an annotation
-                var formattedLocal = trimmedLocal
-                    .WithModifiers(trimmedLocal.Modifiers.Insert(0, constToken)) // Insert the const token into the modifiers list
-                    .WithDeclaration(varDecl)
-                    .WithAdditionalAnnotations(Formatter.Annotation);
-
-                var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
-                if (root is null) return document;
-                var newRoot = root.ReplaceNode(localDecl, formattedLocal);
-                return document.WithSyntaxRoot(newRoot);
-            }
+                return await RefactorLocalAsync(document, localDecl, token).ConfigureAwait(false);
             case FieldDeclarationSyntax fieldDecl:
-            {
-                // Remove static and readonly, add const
-                var modifiers = fieldDecl.Modifiers;
-                modifiers = new SyntaxTokenList(modifiers.Where(m => !m.IsKind(SyntaxKind.StaticKeyword) && !m.IsKind(SyntaxKind.ReadOnlyKeyword)));
-                var constToken = SyntaxFactory.Token(fieldDecl.GetLeadingTrivia(), SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
-                modifiers = modifiers.Insert(0, constToken);
-
-                // If the type is 'var', replace with the actual type
-                var declaration = fieldDecl.Declaration;
-                var typeSyntax = declaration.Type;
-                if (typeSyntax.IsVar)
-                {
-                    var semanticModel = await document.GetSemanticModelAsync(token).ConfigureAwait(false);
-                    var type = semanticModel?.GetTypeInfo(typeSyntax, token).ConvertedType;
-                    if (type != null && type.Name != "var")
-                    {
-                        declaration = declaration.WithType(
-                            SyntaxFactory.ParseTypeName(type.ToDisplayString())
-                                .WithLeadingTrivia(typeSyntax.GetLeadingTrivia())
-                                .WithTrailingTrivia(typeSyntax.GetTrailingTrivia())
-                                .WithAdditionalAnnotations(Microsoft.CodeAnalysis.Simplification.Simplifier.Annotation));
-                    }
-                }
-
-                var newField = fieldDecl
-                    .WithModifiers(modifiers)
-                    .WithDeclaration(declaration)
-                    .WithAdditionalAnnotations(Formatter.Annotation);
-
-                var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
-                if (root is null) return document;
-                var newRoot = root.ReplaceNode(fieldDecl, newField);
-                return document.WithSyntaxRoot(newRoot);
-            }
+                return await RefactorFieldAsync(document, fieldDecl, token).ConfigureAwait(false);
             default:
                 return document;
         }
+    }
+
+    private static async Task<Document> RefactorLocalAsync(Document document, LocalDeclarationStatementSyntax localDecl, CancellationToken token)
+    {
+        // Remove the leading trivia from the local declaration.
+        var firstToken = localDecl.GetFirstToken();
+        var leadingTrivia = firstToken.LeadingTrivia;
+        var trimmedLocal = leadingTrivia.Any()
+            ? localDecl.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(SyntaxTriviaList.Empty))
+            : localDecl;
+
+        // Create a const token with the leading trivia.
+        var constToken = SyntaxFactory.Token(leadingTrivia, SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
+
+        // If the type of the declaration is 'var', create a new type name for the inferred type.
+        var varDecl = localDecl.Declaration;
+        var varTypeName = varDecl.Type;
+        if (varTypeName.IsVar)
+            varDecl = await GetDeclarationForVarAsync(document, varDecl, varTypeName, token).ConfigureAwait(false);
+
+        // Produce the new local declaration with an annotation
+        var formattedLocal = trimmedLocal
+            .WithModifiers(trimmedLocal.Modifiers.Insert(0, constToken)) // Insert the const token into the modifiers list
+            .WithDeclaration(varDecl)
+            .WithAdditionalAnnotations(Formatter.Annotation);
+
+        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
+        if (root is null) return document;
+        var newRoot = root.ReplaceNode(localDecl, formattedLocal);
+        return document.WithSyntaxRoot(newRoot);
+    }
+
+    private static async Task<Document> RefactorFieldAsync(Document document, FieldDeclarationSyntax fieldDecl, CancellationToken token)
+    {
+        // Remove static and readonly, add const
+        var modifiers = fieldDecl.Modifiers;
+        modifiers = [.. modifiers.Where(m => !m.IsKind(SyntaxKind.StaticKeyword) && !m.IsKind(SyntaxKind.ReadOnlyKeyword))];
+        var constToken = SyntaxFactory.Token(fieldDecl.GetLeadingTrivia(), SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
+        modifiers = modifiers.Insert(0, constToken);
+
+        // If the type is 'var', replace with the actual type
+        var declaration = fieldDecl.Declaration;
+        var typeSyntax = declaration.Type;
+        if (typeSyntax.IsVar)
+        {
+            var semanticModel = await document.GetSemanticModelAsync(token).ConfigureAwait(false);
+            var type = semanticModel?.GetTypeInfo(typeSyntax, token).ConvertedType;
+            if (type != null && type.Name != "var")
+            {
+                declaration = declaration.WithType(
+                    SyntaxFactory.ParseTypeName(type.ToDisplayString())
+                        .WithLeadingTrivia(typeSyntax.GetLeadingTrivia())
+                        .WithTrailingTrivia(typeSyntax.GetTrailingTrivia())
+                        .WithAdditionalAnnotations(Simplifier.Annotation));
+            }
+        }
+
+        var newField = fieldDecl
+            .WithModifiers(modifiers)
+            .WithDeclaration(declaration)
+            .WithAdditionalAnnotations(Formatter.Annotation);
+
+        var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(false);
+        if (root is null) return document;
+        var newRoot = root.ReplaceNode(fieldDecl, newField);
+        return document.WithSyntaxRoot(newRoot);
     }
 
     private static async Task<VariableDeclarationSyntax> GetDeclarationForVarAsync(Document document, VariableDeclarationSyntax varDecl, TypeSyntax varTypeName, CancellationToken token)

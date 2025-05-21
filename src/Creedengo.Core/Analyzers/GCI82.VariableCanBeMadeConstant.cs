@@ -1,4 +1,5 @@
-﻿namespace Creedengo.Core.Analyzers;
+﻿
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI82: Variable can be made constant.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -32,86 +33,92 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
         switch (context.Node)
         {
             case LocalDeclarationStatementSyntax localDeclaration:
-                {
-                    // Make sure the declaration isn't already const
-                    if (localDeclaration.Modifiers.Any(SyntaxKind.ConstKeyword))
-                        return;
-
-                    // Ensure that all variables in the local declaration have initializers that are assigned with constant values
-                    var variableType = context.SemanticModel.GetTypeInfo(localDeclaration.Declaration.Type, context.CancellationToken).ConvertedType;
-                    if (variableType is null) return;
-                    foreach (var variable in localDeclaration.Declaration.Variables)
-                    {
-                        var initializer = variable.Initializer;
-                        if (initializer is null) return;
-
-                        var constantValue = context.SemanticModel.GetConstantValue(initializer.Value, context.CancellationToken);
-                        if (!constantValue.HasValue) return;
-
-                        // Ensure that the initializer value can be converted to the type of the local declaration without a user-defined conversion.
-                        var conversion = context.SemanticModel.ClassifyConversion(initializer.Value, variableType);
-                        if (!conversion.Exists || conversion.IsUserDefined) return;
-
-                        // Special cases:
-                        // * If the constant value is a string, the type of the local declaration must be string
-                        // * If the constant value is null, the type of the local declaration must be a reference type
-                        if (constantValue.Value is string)
-                        {
-                            if (variableType.SpecialType is not SpecialType.System_String) return;
-                        }
-                        else if (variableType.IsReferenceType && constantValue.Value is not null)
-                        {
-                            return;
-                        }
-                    }
-
-                    // Perform data flow analysis on the local declaration
-                    var dataFlowAnalysis = context.SemanticModel.AnalyzeDataFlow(localDeclaration);
-                    if (dataFlowAnalysis is null) return;
-
-                    foreach (var variable in localDeclaration.Declaration.Variables)
-                    {
-                        // Retrieve the local symbol for each variable in the local declaration and ensure that it is not written outside of the data flow analysis region
-                        var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken);
-                        if (variableSymbol is null || dataFlowAnalysis.WrittenOutside.Contains(variableSymbol))
-                            return;
-                    }
-
-                    context.ReportDiagnostic(Diagnostic.Create(Descriptor, context.Node.GetLocation()));
-                    break;
-                }
-            case FieldDeclarationSyntax fieldDecl:
-                {
-                    // Ignore const fields
-                    if (fieldDecl.Modifiers.Any(SyntaxKind.ConstKeyword))
-                        return;
-
-                    // Only static readonly fields
-                    if (!fieldDecl.Modifiers.Any(SyntaxKind.StaticKeyword) ||
-                        !fieldDecl.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
-                        return;
-
-                    var variableType = context.SemanticModel.GetTypeInfo(fieldDecl.Declaration.Type, context.CancellationToken).ConvertedType;
-                    if (variableType is null) return;
-
-                    foreach (var variable in fieldDecl.Declaration.Variables)
-                    {
-                        if (variable.Initializer is null) return;
-
-                        var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken) as IFieldSymbol;
-                        if (variableSymbol is null) return;
-
-                        // Only allow types that can be const
-                        if (!IsAllowedConstType(variableSymbol.Type)) return;
-
-                        var constantValue = context.SemanticModel.GetConstantValue(variable.Initializer.Value, context.CancellationToken);
-                        if (!constantValue.HasValue) return;
-                    }
-
-                    context.ReportDiagnostic(Diagnostic.Create(Descriptor, fieldDecl.GetLocation()));
-                    break;
-                }
+                AnalyzeLocalDeclaration(context, localDeclaration);
+                break;
+            case FieldDeclarationSyntax fieldDeclaration:
+                AnalyzeFieldDeclaration(context, fieldDeclaration);
+                break;
         }
+    }
+
+    private static void AnalyzeLocalDeclaration(SyntaxNodeAnalysisContext context, LocalDeclarationStatementSyntax localDeclaration)
+    {
+        // Make sure the declaration isn't already const
+        if (localDeclaration.Modifiers.Any(SyntaxKind.ConstKeyword))
+            return;
+
+        // Ensure that all variables in the local declaration have initializers that are assigned with constant values
+        var variableType = context.SemanticModel.GetTypeInfo(localDeclaration.Declaration.Type, context.CancellationToken).ConvertedType;
+        if (variableType is null) return;
+        foreach (var variable in localDeclaration.Declaration.Variables)
+        {
+            var initializer = variable.Initializer;
+            if (initializer is null) return;
+
+            var constantValue = context.SemanticModel.GetConstantValue(initializer.Value, context.CancellationToken);
+            if (!constantValue.HasValue) return;
+
+            // Ensure that the initializer value can be converted to the type of the local declaration without a user-defined conversion.
+            var conversion = context.SemanticModel.ClassifyConversion(initializer.Value, variableType);
+            if (!conversion.Exists || conversion.IsUserDefined) return;
+
+            // Special cases:
+            // * If the constant value is a string, the type of the local declaration must be string
+            // * If the constant value is null, the type of the local declaration must be a reference type
+            if (constantValue.Value is string)
+            {
+                if (variableType.SpecialType is not SpecialType.System_String) return;
+            }
+            else if (variableType.IsReferenceType && constantValue.Value is not null)
+            {
+                return;
+            }
+        }
+
+        // Perform data flow analysis on the local declaration
+        var dataFlowAnalysis = context.SemanticModel.AnalyzeDataFlow(localDeclaration);
+        if (dataFlowAnalysis is null) return;
+
+        foreach (var variable in localDeclaration.Declaration.Variables)
+        {
+            // Retrieve the local symbol for each variable in the local declaration and ensure that it is not written outside of the data flow analysis region
+            var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken);
+            if (variableSymbol is null || dataFlowAnalysis.WrittenOutside.Contains(variableSymbol))
+                return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(Descriptor, context.Node.GetLocation()));
+    }
+
+    private static void AnalyzeFieldDeclaration(SyntaxNodeAnalysisContext context, FieldDeclarationSyntax fieldDecl)
+    {
+        // Ignore const fields
+        if (fieldDecl.Modifiers.Any(SyntaxKind.ConstKeyword))
+            return;
+
+        // Only static readonly fields
+        if (!fieldDecl.Modifiers.Any(SyntaxKind.StaticKeyword) ||
+            !fieldDecl.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+            return;
+
+        var variableType = context.SemanticModel.GetTypeInfo(fieldDecl.Declaration.Type, context.CancellationToken).ConvertedType;
+        if (variableType is null) return;
+
+        foreach (var variable in fieldDecl.Declaration.Variables)
+        {
+            if (variable.Initializer is null) return;
+
+            var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken) as IFieldSymbol;
+            if (variableSymbol is null) return;
+
+            // Only allow types that can be const
+            if (!IsAllowedConstType(variableSymbol.Type)) return;
+
+            var constantValue = context.SemanticModel.GetConstantValue(variable.Initializer.Value, context.CancellationToken);
+            if (!constantValue.HasValue) return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(Descriptor, fieldDecl.GetLocation()));
     }
 
     private static bool IsAllowedConstType(ITypeSymbol type)
