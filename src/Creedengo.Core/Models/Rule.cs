@@ -28,6 +28,7 @@ internal static class Rule
         public const string GCI92_UseStringEmptyLength = "GCI92";
         public const string GCI93_ReturnTaskDirectly = "GCI93";
         public const string GCI95_UseIsOperatorInsteadOfAsOperator = "GCI95";
+        public const string GCI96_UseEventArgsDotEmpty = "GCI96";
     }
 
     /// <summary>Creates a diagnostic descriptor.</summary>
