@@ -10,6 +10,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="Analyzers\GCI95.UseIsOperatorInsteadOfAsOperator.Fixer.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all" ExcludeAssets="compile" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" IncludeAssets="compile" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" IncludeAssets="compile" />
