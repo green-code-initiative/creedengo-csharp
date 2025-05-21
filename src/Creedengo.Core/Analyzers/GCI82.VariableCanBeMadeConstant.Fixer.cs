@@ -80,11 +80,26 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
 
     private static async Task<Document> RefactorFieldAsync(Document document, FieldDeclarationSyntax fieldDecl, CancellationToken token)
     {
-        // Remove static and readonly, add const
+        // Remove static and readonly, add const after access modifiers
         var modifiers = fieldDecl.Modifiers;
-        modifiers = [.. modifiers.Where(m => !m.IsKind(SyntaxKind.StaticKeyword) && !m.IsKind(SyntaxKind.ReadOnlyKeyword))];
+        var accessModifiers = modifiers.Where(m =>
+            m.IsKind(SyntaxKind.PublicKeyword) ||
+            m.IsKind(SyntaxKind.PrivateKeyword) ||
+            m.IsKind(SyntaxKind.ProtectedKeyword) ||
+            m.IsKind(SyntaxKind.InternalKeyword)).ToList();
+        var otherModifiers = modifiers.Where(m =>
+            !m.IsKind(SyntaxKind.PublicKeyword) &&
+            !m.IsKind(SyntaxKind.PrivateKeyword) &&
+            !m.IsKind(SyntaxKind.ProtectedKeyword) &&
+            !m.IsKind(SyntaxKind.InternalKeyword) &&
+            !m.IsKind(SyntaxKind.StaticKeyword) &&
+            !m.IsKind(SyntaxKind.ReadOnlyKeyword)).ToList();
+
         var constToken = SyntaxFactory.Token(fieldDecl.GetLeadingTrivia(), SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
-        modifiers = modifiers.Insert(0, constToken);
+        var newModifiers = new SyntaxTokenList();
+        newModifiers = newModifiers.AddRange(accessModifiers);
+        newModifiers = newModifiers.Add(constToken);
+        newModifiers = newModifiers.AddRange(otherModifiers);
 
         // If the type is 'var', replace with the actual type
         var declaration = fieldDecl.Declaration;
@@ -104,7 +119,7 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
         }
 
         var newField = fieldDecl
-            .WithModifiers(modifiers)
+            .WithModifiers(newModifiers)
             .WithDeclaration(declaration)
             .WithAdditionalAnnotations(Formatter.Annotation);
 

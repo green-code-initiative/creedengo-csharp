@@ -12,8 +12,8 @@ public sealed class VariableCanBeMadeConstantTests
     public Task DontWarnOnConstAsync() => VerifyAsync("""
         public class TestClass
         {
-            const int x = 1;
-            const string s = "Bar";
+            private const int x = 1;
+            private const string s = "Bar";
         }
         """);
 
@@ -21,12 +21,12 @@ public sealed class VariableCanBeMadeConstantTests
     public Task WarnOnStaticReadonlyIntAsync() => VerifyAsync("""
         public class TestClass
         {
-            [|static readonly int x = 1;|]
+            [|private static readonly int x = 1;|]
         }
         """, """
         public class TestClass
         {
-            const int x = 1;
+            private const int x = 1;
         }
         """);
 
@@ -34,12 +34,12 @@ public sealed class VariableCanBeMadeConstantTests
     public Task WarnOnStaticReadonlyStringAsync() => VerifyAsync("""
         public class TestClass
         {
-            [|static readonly string s = "Bar";|]
+            [|private static readonly string s = "Bar";|]
         }
         """, """
         public class TestClass
         {
-            const string s = "Bar";
+            private const string s = "Bar";
         }
         """);
 
@@ -47,7 +47,7 @@ public sealed class VariableCanBeMadeConstantTests
     public Task DontWarnOnStaticReadonlyNonConstTypeAsync() => VerifyAsync("""
         public class TestClass
         {
-            static readonly object o = new object();
+            private static readonly object o = new object();
         }
         """);
 
@@ -55,7 +55,7 @@ public sealed class VariableCanBeMadeConstantTests
     public Task DontWarnOnStaticReadonlyNonConstantValueAsync() => VerifyAsync("""
         public class TestClass
         {
-            static readonly int x = System.Environment.TickCount;
+            private static readonly int x = System.Environment.TickCount;
         }
         """);
 
@@ -63,14 +63,14 @@ public sealed class VariableCanBeMadeConstantTests
     public Task WarnOnMultipleStaticReadonlyFieldsAsync() => VerifyAsync("""
         public class TestClass
         {
-            [|static readonly int a = 1;|]
-            [|static readonly string b = "foo";|]
+            [|private static readonly int a = 1;|]
+            [|private static readonly string b = "foo";|]
         }
         """, """
         public class TestClass
         {
-            const int a = 1;
-            const string b = "foo";
+            private const int a = 1;
+            private const string b = "foo";
         }
         """);
 
@@ -78,7 +78,7 @@ public sealed class VariableCanBeMadeConstantTests
     public Task DontWarnOnStaticReadonlyWithoutInitializerAsync() => VerifyAsync("""
         public class TestClass
         {
-            static readonly int x;
+            private static readonly int x;
         }
         """);
 
