@@ -28,7 +28,9 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
     protected override async Task<int> ExecuteAsync(CommandContext context, AnalyzeSettings settings, CancellationToken cancellationToken)
     {
         using var workspace = MSBuildWorkspace.Create();
-        workspace.RegisterWorkspaceFailedHandler(e => Program.WriteLine(e.Diagnostic.Message, "red"));
+#pragma warning disable CS0618 // RegisterWorkspaceFailedHandler requires Roslyn ≥ 4.13
+        workspace.WorkspaceFailed += (sender, e) => Program.WriteLine(e.Diagnostic.Message, "red");
+#pragma warning restore CS0618
 
         var analysisService = await AnalysisService.CreateAsync(settings.SeverityLevel).ConfigureAwait(false);
 
