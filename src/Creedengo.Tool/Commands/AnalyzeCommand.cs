@@ -5,7 +5,7 @@ namespace Creedengo.Tool.Commands;
 
 internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
 {
-    public override ValidationResult Validate(CommandContext context, AnalyzeSettings settings)
+    protected override ValidationResult Validate(CommandContext context, AnalyzeSettings settings)
     {
         if (!File.Exists(settings.Source))
             return ValidationResult.Error($"The source file {settings.Source} does not exist.");
@@ -25,10 +25,10 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
         return base.Validate(context, settings);
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, AnalyzeSettings settings)
+    protected override async Task<int> ExecuteAsync(CommandContext context, AnalyzeSettings settings, CancellationToken cancellationToken)
     {
         using var workspace = MSBuildWorkspace.Create();
-        workspace.WorkspaceFailed += (sender, e) => Program.WriteLine(e.Diagnostic.Message, "red");
+        workspace.RegisterWorkspaceFailedHandler(e => Program.WriteLine(e.Diagnostic.Message, "red"));
 
         var analysisService = await AnalysisService.CreateAsync(settings.SeverityLevel).ConfigureAwait(false);
 
@@ -39,7 +39,7 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
             Solution solution;
             try
             {
-                solution = await workspace.OpenSolutionAsync(settings.Source).ConfigureAwait(false);
+                solution = await workspace.OpenSolutionAsync(settings.Source, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
             Project project;
             try
             {
-                project = await workspace.OpenProjectAsync(settings.Source).ConfigureAwait(false);
+                project = await workspace.OpenProjectAsync(settings.Source, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -1,0 +1,36 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Creedengo.globalconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="Rules to work on.md" />
+    <File Path="SharedAssemblyInfo.cs" />
+  </Folder>
+  <Folder Name="/Solution Items/Assets/">
+    <File Path="CONTRIBUTING.md" />
+    <File Path="icon.jpeg" />
+    <File Path="LICENCE.md" />
+    <File Path="NOTICE.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/Filters/">
+    <File Path="NuGetOnly.slnf" />
+    <File Path="TestsOnly.slnf" />
+    <File Path="ToolOnly.slnf" />
+  </Folder>
+  <Folder Name="/Solution Items/Workflows/">
+    <File Path=".github/workflows/01-versioning.yml" />
+    <File Path=".github/workflows/02-build.yml" />
+    <File Path=".github/workflows/03-publish.yml" />
+    <File Path=".github/workflows/04-release.yml" />
+    <File Path=".github/workflows/build-and-test.yml" />
+    <File Path=".github/workflows/create-tag-release.yml" />
+  </Folder>
+  <Project Path="src/Creedengo.Core/Creedengo.Core.csproj" />
+  <Project Path="src/Creedengo.Package/Creedengo.Package.csproj" />
+  <Project Path="src/Creedengo.Tests/Creedengo.Tests.csproj" />
+  <Project Path="src/Creedengo.Tool/Creedengo.Tool.csproj" />
+</Solution>
