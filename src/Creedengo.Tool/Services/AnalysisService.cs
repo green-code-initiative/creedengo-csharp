@@ -68,18 +68,18 @@ internal sealed partial class AnalysisService
         }
     }
 
-    public async Task AnalyzeProjectAsync(Project project, List<DiagnosticInfo> diagnostics)
+    public async Task AnalyzeProjectAsync(Project project, List<DiagnosticInfo> diagnostics, CancellationToken cancellationToken = default)
     {
         Program.WriteLine($"Analyzing project {project.Name}...", "darkorange");
 
-        if (await project.GetCompilationAsync().ConfigureAwait(false) is not { } compilation)
+        if (await project.GetCompilationAsync(cancellationToken).ConfigureAwait(false) is not { } compilation)
         {
             Program.WriteLine($"Unable to load the project {project.Name} compilation, skipping.", "red");
             return;
         }
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(_analyzers, _analyzerOptions);
-        foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().ConfigureAwait(false))
+        foreach (var diagnostic in await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken).ConfigureAwait(false))
             diagnostics.Add(DiagnosticInfo.FromDiagnostic(diagnostic));
 
         Program.WriteLine($"Analysis complete for project {project.Name}", "green");

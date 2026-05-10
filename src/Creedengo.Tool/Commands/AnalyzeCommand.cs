@@ -43,6 +43,7 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
             {
                 solution = await workspace.OpenSolutionAsync(settings.Source, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
+            catch (OperationCanceledException) { throw; }
             catch (Exception ex)
             {
                 Program.WriteLine($"Cannot load the provided solution: {ex.Message}", "red");
@@ -51,7 +52,10 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
             }
 
             foreach (var project in solution.Projects)
-                await analysisService.AnalyzeProjectAsync(project, diagnostics).ConfigureAwait(false);
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await analysisService.AnalyzeProjectAsync(project, diagnostics, cancellationToken).ConfigureAwait(false);
+            }
         }
         else // options.SourceType is SourceType.Project
         {
@@ -60,6 +64,7 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
             {
                 project = await workspace.OpenProjectAsync(settings.Source, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
+            catch (OperationCanceledException) { throw; }
             catch (Exception ex)
             {
                 Program.WriteLine($"Cannot load the provided project: {ex.Message}", "red");
@@ -67,10 +72,10 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
                 return 1;
             }
 
-            await analysisService.AnalyzeProjectAsync(project, diagnostics).ConfigureAwait(false);
+            await analysisService.AnalyzeProjectAsync(project, diagnostics, cancellationToken).ConfigureAwait(false);
         }
 
-        await ReportService.GenerateReportAsync(diagnostics, settings.Output, settings.OutputType).ConfigureAwait(false);
+        await ReportService.GenerateReportAsync(diagnostics, settings.Output, settings.OutputType, cancellationToken).ConfigureAwait(false);
 
         return 0;
     }
