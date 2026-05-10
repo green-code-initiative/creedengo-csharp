@@ -3,7 +3,10 @@ name: Build
 on:
   workflow_call:
     inputs:
-      tag:
+      versionPrefix:
+        required: true
+        type: string
+      versionSuffix:
         required: true
         type: string
 
@@ -19,9 +22,9 @@ jobs:
 
     - run: dotnet restore NuGetOnly.slnf
 
-    - run: dotnet build NuGetOnly.slnf -c Release --no-restore -p:Version=${{ inputs.tag }}
+    - run: dotnet build NuGetOnly.slnf -c Release --no-restore -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
 
-    - run: dotnet pack NuGetOnly.slnf -c Release --no-build -o ./nupkg -p:Version=${{ inputs.tag }}
+    - run: dotnet pack NuGetOnly.slnf -c Release --no-build -o ./nupkg -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
 
     - uses: actions/upload-artifact@v7
       with:
@@ -39,9 +42,9 @@ jobs:
 
     - run: dotnet restore ToolOnly.slnf
 
-    - run: dotnet build ToolOnly.slnf -c Release --no-restore -p:Version=${{ inputs.tag }}
+    - run: dotnet build ToolOnly.slnf -c Release --no-restore -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
 
-    - run: dotnet pack ToolOnly.slnf -c Release -o ./tool -p:Version=${{ inputs.tag }}
+    - run: dotnet pack ToolOnly.slnf -c Release -o ./tool -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
 
     - uses: actions/upload-artifact@v7
       with:
