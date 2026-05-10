@@ -1,11 +1,11 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI91: Use Where before OrderBy.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseWhereBeforeOrderBy : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> InvocationExpressions = [SyntaxKind.InvocationExpression];
-    private static readonly ImmutableArray<SyntaxKind> QueryExpressions = [SyntaxKind.QueryExpression];
+    private static readonly ImmutableArray<SyntaxKind> InvocationExpressions = ImmutableArray.Create(SyntaxKind.InvocationExpression);
+    private static readonly ImmutableArray<SyntaxKind> QueryExpressions = ImmutableArray.Create(SyntaxKind.QueryExpression);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -18,7 +18,7 @@ public sealed class UseWhereBeforeOrderBy : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

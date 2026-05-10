@@ -1,10 +1,10 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI81: Specify struct layout.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SpecifyStructLayout : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SymbolKind> SymbolKinds = [SymbolKind.NamedType];
+    private static readonly ImmutableArray<SymbolKind> SymbolKinds = ImmutableArray.Create(SymbolKind.NamedType);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -17,7 +17,7 @@ public sealed class SpecifyStructLayout : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

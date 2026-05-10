@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI88 fixer: Dispose resource asynchronously.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DisposeResourceAsynchronouslyFixer)), Shared]
@@ -6,7 +6,7 @@ public sealed class DisposeResourceAsynchronouslyFixer : CodeFixProvider
 {
     /// <inheritdoc/>
     public override ImmutableArray<string> FixableDiagnosticIds => _fixableDiagnosticIds;
-    private static readonly ImmutableArray<string> _fixableDiagnosticIds = [DisposeResourceAsynchronously.Descriptor.Id];
+    private static readonly ImmutableArray<string> _fixableDiagnosticIds = ImmutableArray.Create(DisposeResourceAsynchronously.Descriptor.Id);
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]

@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI82 fixer: Variable can be made constant.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(VariableCanBeMadeConstantFixer)), Shared]
@@ -6,7 +6,7 @@ public sealed class VariableCanBeMadeConstantFixer : CodeFixProvider
 {
     /// <inheritdoc/>
     public override ImmutableArray<string> FixableDiagnosticIds => _fixableDiagnosticIds;
-    private static readonly ImmutableArray<string> _fixableDiagnosticIds = [VariableCanBeMadeConstant.Descriptor.Id];
+    private static readonly ImmutableArray<string> _fixableDiagnosticIds = ImmutableArray.Create(VariableCanBeMadeConstant.Descriptor.Id);
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]

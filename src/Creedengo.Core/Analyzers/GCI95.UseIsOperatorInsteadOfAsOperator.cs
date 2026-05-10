@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI95: Use is operator instead of as operator.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -15,7 +15,7 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

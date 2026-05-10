@@ -1,10 +1,10 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCIACV: Do not pass non-read-only struct by read-only reference.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> MethodDeclarations = [SyntaxKind.MethodDeclaration];
+    private static readonly ImmutableArray<SyntaxKind> MethodDeclarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -17,7 +17,7 @@ public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
@@ -26,18 +26,17 @@ public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.RegisterSyntaxNodeAction(static context => AnalyzeSyntaxNode(context), MethodDeclarations);
     }
-    
+
     private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
     {
         var methodDeclaration = (MethodDeclarationSyntax)context.Node;
         var semanticModel = context.SemanticModel;
-        var compilation = context.Compilation;        // Analyze each parameter in the method declaration
         foreach (var parameter in methodDeclaration.ParameterList.Parameters)
         {
             // Check if the parameter has either 'in' keyword or 'ref readonly' modifiers
-            bool isReadOnlyReference = parameter.Modifiers.Any(SyntaxKind.InKeyword) || 
-                (parameter.Modifiers.Any(SyntaxKind.RefKeyword) && parameter.Modifiers.Any(SyntaxKind.ReadOnlyKeyword));
-            
+            bool isReadOnlyReference = parameter.Modifiers.Any(SyntaxKind.InKeyword) ||
+                parameter.Modifiers.Any(SyntaxKind.RefKeyword) && parameter.Modifiers.Any(SyntaxKind.ReadOnlyKeyword);
+
             if (isReadOnlyReference &&
                 parameter.Type != null &&
                 ModelExtensions.GetTypeInfo(semanticModel, parameter.Type).Type is { } parameterTypeSymbol &&
@@ -48,14 +47,11 @@ public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
                 if (!namedTypeSymbol.IsReadOnly)
                 {
                     // Report diagnostic on the type identifier part of the parameter
-                    var diagnosticLocation = parameter.Type.GetLocation();
-                    if (diagnosticLocation == null)
-                        diagnosticLocation = parameter.GetLocation();
-
+                    var diagnosticLocation = parameter.Type.GetLocation() ?? parameter.GetLocation();
                     context.ReportDiagnostic(
                         Diagnostic.Create(
-                            Descriptor, 
-                            diagnosticLocation, 
+                            Descriptor,
+                            diagnosticLocation,
                             parameter.Identifier.ValueText));
                 }
             }

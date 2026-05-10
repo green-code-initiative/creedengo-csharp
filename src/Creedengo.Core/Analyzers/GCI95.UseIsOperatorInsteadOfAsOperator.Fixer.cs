@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>
 /// GCI95 fixer: Use Length to test empty strings.
@@ -7,7 +7,7 @@
 public sealed class UseIsOperatorInsteadOfAsOperatorFixer : CodeFixProvider
 {
     /// <inheritdoc/>
-    public override ImmutableArray<string> FixableDiagnosticIds => [UseIsOperatorInsteadOfAsOperator.Descriptor.Id];
+    public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(UseIsOperatorInsteadOfAsOperator.Descriptor.Id);
 
     /// <inheritdoc/>
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -25,7 +25,7 @@ public sealed class UseIsOperatorInsteadOfAsOperatorFixer : CodeFixProvider
             return;
         }
 
-        var diagnostic = context.Diagnostics.First();
+        var diagnostic = context.Diagnostics[0];
         var diagnosticSpan = diagnostic.Location.SourceSpan;
 
         // Find the expression with 'as'
@@ -36,8 +36,7 @@ public sealed class UseIsOperatorInsteadOfAsOperatorFixer : CodeFixProvider
         }
 
         // Find the parent binary expression: "x as T != null"
-        var parentBinary = asExpression.Parent as BinaryExpressionSyntax;
-        if (parentBinary is null)
+        if (asExpression.Parent is not BinaryExpressionSyntax parentBinary)
             return;
 
         context.RegisterCodeFix(

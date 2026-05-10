@@ -1,11 +1,11 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI92: Use Length to test empty strings.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseLengthToTestEmptyStrings : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> EqualsExpression = [SyntaxKind.EqualsExpression];
-    private static readonly ImmutableArray<SyntaxKind> NotEqualsExpression = [SyntaxKind.NotEqualsExpression];
+    private static readonly ImmutableArray<SyntaxKind> EqualsExpression = ImmutableArray.Create(SyntaxKind.EqualsExpression);
+    private static readonly ImmutableArray<SyntaxKind> NotEqualsExpression = ImmutableArray.Create(SyntaxKind.NotEqualsExpression);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -18,7 +18,7 @@ public sealed class UseLengthToTestEmptyStrings : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

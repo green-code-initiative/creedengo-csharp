@@ -1,10 +1,10 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI86 : GC Collect should not be called.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GCCollectShouldNotBeCalled : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = [SyntaxKind.InvocationExpression];
+    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = ImmutableArray.Create(SyntaxKind.InvocationExpression);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -17,7 +17,7 @@ public sealed class GCCollectShouldNotBeCalled : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
