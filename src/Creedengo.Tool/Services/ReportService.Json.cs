@@ -8,6 +8,12 @@ static partial class ReportService
     {
         public static async Task WriteToStreamAsync(StreamWriter writer, List<DiagnosticInfo> diagnostics, CancellationToken cancellationToken = default)
         {
+            if (diagnostics.Count == 0)
+            {
+                await writer.WriteLineAsync("[]".AsMemory(), cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
             await writer.WriteLineAsync("[".AsMemory(), cancellationToken).ConfigureAwait(false);
 
             for (int i = 0; i < diagnostics.Count - 1; i++)

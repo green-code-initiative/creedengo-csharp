@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net;
 using System.Text;
 
 namespace Creedengo.Tool.Services;
@@ -51,7 +52,15 @@ static partial class ReportService
             await writer.WriteLineAsync(Header.AsMemory(), cancellationToken).ConfigureAwait(false);
 
             foreach (var diag in diagnostics)
-                await writer.WriteLineAsync(string.Format(CultureInfo.InvariantCulture, Row, diag.Directory, diag.File, diag.Location, diag.Severity, diag.Code, diag.Message).AsMemory(), cancellationToken).ConfigureAwait(false);
+                await writer.WriteLineAsync(string.Format(
+                    CultureInfo.InvariantCulture,
+                    Row,
+                    WebUtility.HtmlEncode(diag.Directory),
+                    WebUtility.HtmlEncode(diag.File),
+                    WebUtility.HtmlEncode(diag.Location),
+                    WebUtility.HtmlEncode(diag.Severity),
+                    WebUtility.HtmlEncode(diag.Code),
+                    WebUtility.HtmlEncode(diag.Message)).AsMemory(), cancellationToken).ConfigureAwait(false);
 
             await writer.WriteLineAsync(Footer.AsMemory(), cancellationToken).ConfigureAwait(false);
         }
