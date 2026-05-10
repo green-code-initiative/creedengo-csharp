@@ -84,4 +84,49 @@ public sealed class AvoidAsyncVoidMethodsTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task AvoidAsyncVoidLocalFunctionAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Program
+        {
+            public static void Caller()
+            {
+                async void [|Inner|]()
+                {
+                    await Task.Delay(1000);
+                }
+                Inner();
+            }
+        }
+        """, """
+        using System.Threading.Tasks;
+        public static class Program
+        {
+            public static void Caller()
+            {
+                async Task Inner()
+                {
+                    await Task.Delay(1000);
+                }
+                Inner();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task AsyncTaskLocalFunctionIsOkAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Program
+        {
+            public static void Caller()
+            {
+                async Task Inner()
+                {
+                    await Task.Delay(1000);
+                }
+                _ = Inner();
+            }
+        }
+        """);
 }

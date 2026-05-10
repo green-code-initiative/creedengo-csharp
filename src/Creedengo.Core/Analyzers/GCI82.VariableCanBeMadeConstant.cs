@@ -49,7 +49,7 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 
         // Ensure that all variables in the local declaration have initializers that are assigned with constant values
         var variableType = context.SemanticModel.GetTypeInfo(localDeclaration.Declaration.Type, context.CancellationToken).ConvertedType;
-        if (variableType is null) return;
+        if (variableType is null || !CanBeConstType(variableType)) return;
         foreach (var variable in localDeclaration.Declaration.Variables)
         {
             var initializer = variable.Initializer;
@@ -88,6 +88,26 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
         }
 
         context.ReportDiagnostic(Diagnostic.Create(Descriptor, context.Node.GetLocation()));
+    }
+
+    // C# allows 'const' only on the built-in primitives, string, enums, and reference types initialized to null.
+    // Everything else (Nullable<T>, user structs, arrays, etc.) produces CS0283 if you try to make it const.
+    private static bool CanBeConstType(ITypeSymbol type)
+    {
+        if (type.TypeKind == TypeKind.Enum) return true;
+        return type.SpecialType switch
+        {
+            SpecialType.System_Boolean
+                or SpecialType.System_Byte or SpecialType.System_SByte
+                or SpecialType.System_Int16 or SpecialType.System_UInt16
+                or SpecialType.System_Int32 or SpecialType.System_UInt32
+                or SpecialType.System_Int64 or SpecialType.System_UInt64
+                or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal
+                or SpecialType.System_Char
+                or SpecialType.System_String
+                or SpecialType.System_Object => true,
+            _ => type.IsReferenceType, // Other reference types (e.g. user classes) accept 'const ... = null'.
+        };
     }
 
     private static void AnalyzeFieldDeclaration(SyntaxNodeAnalysisContext context, FieldDeclarationSyntax fieldDecl)

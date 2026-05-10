@@ -17,28 +17,23 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
     private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
+    private static readonly ImmutableArray<SyntaxKind> SupportedSyntaxKinds = ImmutableArray.Create(
+        SyntaxKind.IfStatement,
+        SyntaxKind.ConditionalExpression,
+        SyntaxKind.WhileStatement,
+        SyntaxKind.DoStatement,
+        SyntaxKind.ForStatement,
+        SyntaxKind.ReturnStatement);
+
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-
-        SyntaxKind[] supportSyntaxKinds = [
-            SyntaxKind.IfStatement,
-            SyntaxKind.ConditionalExpression,
-            SyntaxKind.WhileStatement,
-            SyntaxKind.DoStatement,
-            SyntaxKind.ForStatement,
-            SyntaxKind.ReturnStatement
-        ];
-
-        foreach (var item in supportSyntaxKinds)
-        {
-            context.RegisterSyntaxNodeAction(AnalyzeNode, item);
-        }
+        context.RegisterSyntaxNodeAction(static context => AnalyzeNode(context), SupportedSyntaxKinds);
     }
 
-    private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
         var condition = context.Node switch
         {
@@ -53,46 +48,27 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
 
         if (condition == null) return;
 
-        foreach (var node in GetAllNodes(condition))
+        foreach (var node in condition.DescendantNodesAndSelf())
         {
-            if (node is not BinaryExpressionSyntax binaryExpr)
-            {
-                continue;
-            }
+            if (node is not BinaryExpressionSyntax binaryExpr) continue;
+
             var left = binaryExpr.Left;
             var right = binaryExpr.Right;
 
             if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
             {
-                BinaryExpressionSyntax? asExpr;
-                if (left is BinaryExpressionSyntax lAs && lAs.Kind() == SyntaxKind.AsExpression)
-                {
-                    asExpr = lAs;
-                }
-                else
-                {
-                    asExpr = right is BinaryExpressionSyntax rAs && rAs.Kind() == SyntaxKind.AsExpression ? rAs : null;
-                }
+                var asExpr = (left is BinaryExpressionSyntax lAs && lAs.IsKind(SyntaxKind.AsExpression)) ? lAs
+                    : (right is BinaryExpressionSyntax rAs && rAs.IsKind(SyntaxKind.AsExpression)) ? rAs
+                    : null;
 
-                if (asExpr != null)
-                {
-                    var diagnostic = Diagnostic.Create(Descriptor, asExpr.GetLocation());
-                    context.ReportDiagnostic(diagnostic);
-                }
+                if (asExpr is not null)
+                    context.ReportDiagnostic(Diagnostic.Create(Descriptor, asExpr.GetLocation()));
             }
         }
     }
-    private static IEnumerable<SyntaxNode> GetAllNodes(SyntaxNode root)
-    {
-        foreach (var descendant in root.DescendantNodesAndSelf())
-        {
-            yield return descendant;
-        }
-    }
-    private static bool IsAsExpressionComparedToNull(ExpressionSyntax expressionA, ExpressionSyntax expressionB)
-    {
-        return expressionA is BinaryExpressionSyntax binaryExpressionSyntax && binaryExpressionSyntax.IsKind(SyntaxKind.AsExpression) &&
-               expressionB is LiteralExpressionSyntax literalExpressionSyntax &&
-               literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression);
-    }
+
+    private static bool IsAsExpressionComparedToNull(ExpressionSyntax expressionA, ExpressionSyntax expressionB) =>
+        expressionA is BinaryExpressionSyntax binaryExpressionSyntax && binaryExpressionSyntax.IsKind(SyntaxKind.AsExpression) &&
+        expressionB is LiteralExpressionSyntax literalExpressionSyntax &&
+        literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression);
 }

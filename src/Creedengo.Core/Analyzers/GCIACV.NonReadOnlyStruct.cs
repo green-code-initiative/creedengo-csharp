@@ -39,7 +39,7 @@ public sealed class NonReadOnlyStruct : DiagnosticAnalyzer
 
             if (isReadOnlyReference &&
                 parameter.Type != null &&
-                ModelExtensions.GetTypeInfo(semanticModel, parameter.Type).Type is { } parameterTypeSymbol &&
+                semanticModel.GetTypeInfo(parameter.Type).Type is { } parameterTypeSymbol &&
                 parameterTypeSymbol.IsValueType &&
                 parameterTypeSymbol is INamedTypeSymbol namedTypeSymbol)
             {

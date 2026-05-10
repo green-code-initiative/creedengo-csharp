@@ -31,4 +31,57 @@ public sealed class DontExecuteSqlCommandsInLoopsTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task WarnInForeachLoopAsync() => VerifyAsync("""
+        using System.Collections.Generic;
+        using System.Data;
+        public class Test
+        {
+            public void Run(IEnumerable<int> items)
+            {
+                var command = default(IDbCommand)!;
+                foreach (var item in items)
+                {
+                    _ = [|command.ExecuteNonQuery()|];
+                }
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnInWhileLoopAsync() => VerifyAsync("""
+        using System.Data;
+        public class Test
+        {
+            public void Run()
+            {
+                var command = default(IDbCommand)!;
+                int i = 0;
+                while (i < 10)
+                {
+                    _ = [|command.ExecuteScalar()|];
+                    i++;
+                }
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnInDoWhileLoopAsync() => VerifyAsync("""
+        using System.Data;
+        public class Test
+        {
+            public void Run()
+            {
+                var command = default(IDbCommand)!;
+                int i = 0;
+                do
+                {
+                    _ = [|command.ExecuteReader()|];
+                    i++;
+                } while (i < 10);
+            }
+        }
+        """);
 }

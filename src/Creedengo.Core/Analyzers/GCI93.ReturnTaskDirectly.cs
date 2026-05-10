@@ -4,7 +4,7 @@ namespace Creedengo.Core.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> MethodDeclarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration);
+    private static readonly ImmutableArray<SyntaxKind> MethodDeclarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration, SyntaxKind.LocalFunctionStatement);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -29,14 +29,20 @@ public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
 
     private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
     {
+        var (modifiers, returnType, expressionBody, body) = context.Node switch
+        {
+            MethodDeclarationSyntax m => (m.Modifiers, m.ReturnType, m.ExpressionBody, m.Body),
+            LocalFunctionStatementSyntax l => (l.Modifiers, l.ReturnType, l.ExpressionBody, l.Body),
+            _ => default
+        };
+
         // Check if the method is async
-        var methodDeclaration = (MethodDeclarationSyntax)context.Node;
-        int asyncIndex = methodDeclaration.Modifiers.IndexOf(SyntaxKind.AsyncKeyword);
+        int asyncIndex = modifiers.IndexOf(SyntaxKind.AsyncKeyword);
         if (asyncIndex == -1) return;
 
         // Check if the method contains a single await statement
-        var awaitExpr = methodDeclaration.ExpressionBody?.Expression as AwaitExpressionSyntax;
-        if (awaitExpr is null && methodDeclaration.Body?.Statements.SingleOrDefaultNoThrow() is { } statement)
+        var awaitExpr = expressionBody?.Expression as AwaitExpressionSyntax;
+        if (awaitExpr is null && body?.Statements.SingleOrDefaultNoThrow() is { } statement)
         {
             if (statement is ExpressionStatementSyntax expressionStmt) // Is it an 'await' statement
                 awaitExpr = expressionStmt.Expression as AwaitExpressionSyntax;
@@ -52,15 +58,15 @@ public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
         // Don't report if removing 'async' would change the return type. The fix replaces 'await x' (or 'await x.ConfigureAwait(...)')
         // with 'return x', so x's type must already match the method's return type. Otherwise (e.g. 'async ValueTask' awaiting
         // a Task) the suggested fix would not compile.
-        if (!ReturnTypeMatchesAwaitedExpression(context.SemanticModel, methodDeclaration, awaitExpr, context.CancellationToken))
+        if (!ReturnTypeMatchesAwaitedExpression(context.SemanticModel, returnType, awaitExpr, context.CancellationToken))
             return;
 
-        context.ReportDiagnostic(Diagnostic.Create(Descriptor, methodDeclaration.Modifiers[asyncIndex].GetLocation()));
+        context.ReportDiagnostic(Diagnostic.Create(Descriptor, modifiers[asyncIndex].GetLocation()));
     }
 
-    private static bool ReturnTypeMatchesAwaitedExpression(SemanticModel semanticModel, MethodDeclarationSyntax method, AwaitExpressionSyntax awaitExpr, System.Threading.CancellationToken cancellationToken)
+    private static bool ReturnTypeMatchesAwaitedExpression(SemanticModel semanticModel, TypeSyntax methodReturnType, AwaitExpressionSyntax awaitExpr, System.Threading.CancellationToken cancellationToken)
     {
-        if (semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol is not ITypeSymbol returnType)
+        if (semanticModel.GetSymbolInfo(methodReturnType, cancellationToken).Symbol is not ITypeSymbol returnType)
             return false;
 
         // The fixer strips a trailing .ConfigureAwait(...) before returning, so compare against the receiver's type when present.

@@ -304,4 +304,69 @@ public sealed class ReturnTaskDirectlyTests
             public static ValueTask<int> Run() => GetValueTask();
         }
         """);
+
+    [TestMethod]
+    public Task WarnOnSingleAwaitInLocalFunctionExpressionAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static void Caller()
+            {
+                [|async|] Task Inner() => await Task.Delay(0).ConfigureAwait(false);
+                _ = Inner();
+            }
+        }
+        """, """
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static void Caller()
+            {
+                Task Inner() => Task.Delay(0);
+                _ = Inner();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnSingleAwaitInLocalFunctionBodyAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static void Caller()
+            {
+                [|async|] Task<int> Inner()
+                {
+                    return await Task.FromResult(0);
+                }
+                _ = Inner();
+            }
+        }
+        """, """
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static void Caller()
+            {
+                Task<int> Inner()
+                {
+                    return Task.FromResult(0);
+                }
+                _ = Inner();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnLocalFunctionWithMismatchedTaskKindAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static void Caller()
+            {
+                async ValueTask Inner() => await Task.Delay(0);
+                _ = Inner();
+            }
+        }
+        """);
 }

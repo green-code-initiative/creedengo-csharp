@@ -25,44 +25,95 @@ public sealed class ReturnTaskDirectlyFixer : CodeFixProvider
 
             foreach (var node in parent.AncestorsAndSelf())
             {
-                if (node is not MethodDeclarationSyntax methodDecl) continue;
-
-                int asyncIndex = methodDecl.Modifiers.IndexOf(SyntaxKind.AsyncKeyword);
-                if (asyncIndex == -1) continue;
-
-                if (methodDecl.ExpressionBody is { Expression: AwaitExpressionSyntax awaitExpr1 })
+                if (node is MethodDeclarationSyntax methodDecl)
                 {
-                    context.RegisterCodeFix( // Expression body
-                        CodeAction.Create(
-                            title: "Return Task directly",
-                            createChangedDocument: _ => ReturnTaskDirectlyWithExpressionAsync(context.Document, methodDecl, awaitExpr1, asyncIndex),
-                            equivalenceKey: "Return Task directly"),
-                        diagnostic);
+                    RegisterFixForMethod(context, diagnostic, methodDecl);
                     break;
                 }
-
-                var statement = methodDecl.Body?.Statements.SingleOrDefaultNoThrow();
-                if (statement is ExpressionStatementSyntax { Expression: AwaitExpressionSyntax awaitExpr2 })
+                if (node is LocalFunctionStatementSyntax localFunction)
                 {
-                    context.RegisterCodeFix( // Body with 'await' statement
-                        CodeAction.Create(
-                            title: "Return Task directly",
-                            createChangedDocument: _ => ReturnTaskDirectlyWithBodyAwaitAsync(context.Document, methodDecl, awaitExpr2, asyncIndex),
-                            equivalenceKey: "Return Task directly"),
-                        diagnostic);
-                    break;
-                }
-                if (statement is ReturnStatementSyntax { Expression: AwaitExpressionSyntax awaitExpr3 } returnStmt)
-                {
-                    context.RegisterCodeFix( // Body with 'return await' statement
-                        CodeAction.Create(
-                            title: "Return Task directly",
-                            createChangedDocument: _ => ReturnTaskDirectlyWithBodyReturnAwaitAsync(context.Document, methodDecl, returnStmt, awaitExpr3, asyncIndex),
-                            equivalenceKey: "Return Task directly"),
-                        diagnostic);
+                    RegisterFixForLocalFunction(context, diagnostic, localFunction);
                     break;
                 }
             }
+        }
+    }
+
+    private static void RegisterFixForMethod(CodeFixContext context, Diagnostic diagnostic, MethodDeclarationSyntax methodDecl)
+    {
+        int asyncIndex = methodDecl.Modifiers.IndexOf(SyntaxKind.AsyncKeyword);
+        if (asyncIndex == -1) return;
+
+        // If 'async' is the first modifier (no accessibility, attributes, etc. precede it), its leading trivia is the line indentation.
+        // Move that trivia onto the return type before removing the modifier; otherwise the method gets de-indented.
+        var asyncToken = methodDecl.Modifiers[asyncIndex];
+        var newModifiers = methodDecl.Modifiers.RemoveAt(asyncIndex);
+        var newReturnType = asyncIndex == 0
+            ? methodDecl.ReturnType.WithLeadingTrivia(asyncToken.LeadingTrivia.AddRange(methodDecl.ReturnType.GetLeadingTrivia()))
+            : methodDecl.ReturnType;
+
+        if (methodDecl.ExpressionBody is { Expression: AwaitExpressionSyntax awaitExpr1 })
+        {
+            var newExpressionBody = BuildExpressionBody(awaitExpr1, methodDecl.ExpressionBody);
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: "Return Task directly",
+                    createChangedDocument: _ => context.Document.WithUpdatedRoot(methodDecl,
+                        methodDecl.WithModifiers(newModifiers).WithReturnType(newReturnType).WithExpressionBody(newExpressionBody)),
+                    equivalenceKey: "Return Task directly"),
+                diagnostic);
+            return;
+        }
+
+        var statement = methodDecl.Body?.Statements.SingleOrDefaultNoThrow();
+        if (TryBuildBlockBody(statement, methodDecl.Body, out var newBlock))
+        {
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: "Return Task directly",
+                    createChangedDocument: _ => context.Document.WithUpdatedRoot(methodDecl,
+                        methodDecl.WithModifiers(newModifiers).WithReturnType(newReturnType).WithBody(newBlock)),
+                    equivalenceKey: "Return Task directly"),
+                diagnostic);
+        }
+    }
+
+    private static void RegisterFixForLocalFunction(CodeFixContext context, Diagnostic diagnostic, LocalFunctionStatementSyntax localFunction)
+    {
+        int asyncIndex = localFunction.Modifiers.IndexOf(SyntaxKind.AsyncKeyword);
+        if (asyncIndex == -1) return;
+
+        // For local functions, 'async' is typically the first token, so its leading trivia carries the line indentation.
+        // Move that trivia onto the return type before removing the modifier; otherwise the function gets de-indented.
+        var asyncToken = localFunction.Modifiers[asyncIndex];
+        var newModifiers = localFunction.Modifiers.RemoveAt(asyncIndex);
+        var newReturnType = asyncIndex == 0
+            ? localFunction.ReturnType.WithLeadingTrivia(asyncToken.LeadingTrivia.AddRange(localFunction.ReturnType.GetLeadingTrivia()))
+            : localFunction.ReturnType;
+
+        if (localFunction.ExpressionBody is { Expression: AwaitExpressionSyntax awaitExpr1 })
+        {
+            var newExpressionBody = BuildExpressionBody(awaitExpr1, localFunction.ExpressionBody);
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: "Return Task directly",
+                    createChangedDocument: _ => context.Document.WithUpdatedRoot(localFunction,
+                        localFunction.WithModifiers(newModifiers).WithReturnType(newReturnType).WithExpressionBody(newExpressionBody)),
+                    equivalenceKey: "Return Task directly"),
+                diagnostic);
+            return;
+        }
+
+        var statement = localFunction.Body?.Statements.SingleOrDefaultNoThrow();
+        if (TryBuildBlockBody(statement, localFunction.Body, out var newBlock))
+        {
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: "Return Task directly",
+                    createChangedDocument: _ => context.Document.WithUpdatedRoot(localFunction,
+                        localFunction.WithModifiers(newModifiers).WithReturnType(newReturnType).WithBody(newBlock)),
+                    equivalenceKey: "Return Task directly"),
+                diagnostic);
         }
     }
 
@@ -71,58 +122,35 @@ public sealed class ReturnTaskDirectlyFixer : CodeFixProvider
         ? memberAccess.Expression // If it is a ConfigureAwait call, strip it for the return statement
         : awaitExpr.Expression; // Else keep the expression as is
 
-    private static async Task<Document> ReturnTaskDirectlyWithExpressionAsync(
-        Document document,
-        MethodDeclarationSyntax methodDecl,
-        AwaitExpressionSyntax awaitExpr,
-        int asyncIndex)
+    private static ArrowExpressionClauseSyntax BuildExpressionBody(AwaitExpressionSyntax awaitExpr, ArrowExpressionClauseSyntax originalArrow) =>
+        SyntaxFactory.ArrowExpressionClause(GetExpressionToReturn(awaitExpr).WithTriviaFrom(awaitExpr))
+            .WithTriviaFrom(originalArrow);
+
+    private static bool TryBuildBlockBody(StatementSyntax? statement, BlockSyntax? originalBody, out BlockSyntax newBlock)
     {
-        var newReturnStmt = SyntaxFactory.ReturnStatement(GetExpressionToReturn(awaitExpr));
+        if (originalBody is not null && statement is ExpressionStatementSyntax { Expression: AwaitExpressionSyntax awaitExpr } exprStmt)
+        {
+            var newReturnStmt = SyntaxFactory.ReturnStatement(GetExpressionToReturn(awaitExpr))
+                .WithLeadingTrivia(awaitExpr.GetLeadingTrivia())
+                .WithTrailingTrivia(exprStmt.SemicolonToken.TrailingTrivia);
+            newBlock = WrapInBlock(newReturnStmt, originalBody);
+            return true;
+        }
 
-        var newBody = SyntaxFactory.ArrowExpressionClause(newReturnStmt.Expression!.WithTriviaFrom(awaitExpr))
-            .WithTriviaFrom(methodDecl.ExpressionBody!);
+        if (originalBody is not null && statement is ReturnStatementSyntax { Expression: AwaitExpressionSyntax awaitExpr2 } returnStmt)
+        {
+            var newReturnStmt = returnStmt.WithExpression(GetExpressionToReturn(awaitExpr2));
+            newBlock = WrapInBlock(newReturnStmt, originalBody);
+            return true;
+        }
 
-        return await document.WithUpdatedRoot(methodDecl, methodDecl
-            .WithModifiers(methodDecl.Modifiers.RemoveAt(asyncIndex))
-            .WithExpressionBody(newBody)).ConfigureAwait(false);
+        newBlock = null!;
+        return false;
     }
 
-    private static async Task<Document> ReturnTaskDirectlyWithBodyAwaitAsync(
-        Document document,
-        MethodDeclarationSyntax methodDecl,
-        AwaitExpressionSyntax awaitExpr,
-        int asyncIndex)
-    {
-        var newReturnStmt = SyntaxFactory.ReturnStatement(GetExpressionToReturn(awaitExpr))
-            .WithLeadingTrivia(awaitExpr.GetLeadingTrivia())
-            .WithTrailingTrivia(((ExpressionStatementSyntax)awaitExpr.Parent!).SemicolonToken.TrailingTrivia);
-
-        var newBody = SyntaxFactory.Block(newReturnStmt)
-            .WithOpenBraceToken(methodDecl.Body!.OpenBraceToken)
-            .WithCloseBraceToken(methodDecl.Body.CloseBraceToken)
-            .WithTriviaFrom(methodDecl.Body);
-
-        return await document.WithUpdatedRoot(methodDecl, methodDecl
-            .WithModifiers(methodDecl.Modifiers.RemoveAt(asyncIndex))
-            .WithBody(newBody)).ConfigureAwait(false);
-    }
-
-    private static async Task<Document> ReturnTaskDirectlyWithBodyReturnAwaitAsync(
-        Document document,
-        MethodDeclarationSyntax methodDecl,
-        ReturnStatementSyntax returnStmt,
-        AwaitExpressionSyntax awaitExpr,
-        int asyncIndex)
-    {
-        var newReturnStmt = returnStmt.WithExpression(GetExpressionToReturn(awaitExpr));
-
-        var newBody = SyntaxFactory.Block(newReturnStmt)
-            .WithOpenBraceToken(methodDecl.Body!.OpenBraceToken)
-            .WithCloseBraceToken(methodDecl.Body.CloseBraceToken)
-            .WithTriviaFrom(methodDecl.Body);
-
-        return await document.WithUpdatedRoot(methodDecl, methodDecl
-            .WithModifiers(methodDecl.Modifiers.RemoveAt(asyncIndex))
-            .WithBody(newBody)).ConfigureAwait(false);
-    }
+    private static BlockSyntax WrapInBlock(StatementSyntax statement, BlockSyntax originalBody) =>
+        SyntaxFactory.Block(statement)
+            .WithOpenBraceToken(originalBody.OpenBraceToken)
+            .WithCloseBraceToken(originalBody.CloseBraceToken)
+            .WithTriviaFrom(originalBody);
 }

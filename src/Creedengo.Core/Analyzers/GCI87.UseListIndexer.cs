@@ -26,19 +26,32 @@ public sealed class UseListIndexer : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeInvocationExpression(context), SyntaxKinds);
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            // Resolve well-known types once per compilation rather than on every InvocationExpression.
+            var enumerableType = startContext.Compilation.GetTypeByMetadataName("System.Linq.Enumerable");
+            if (enumerableType is null) return; // No System.Linq referenced; nothing this analyzer can flag.
+
+            var iReadOnlyListT = startContext.Compilation.GetTypeByMetadataName(typeof(IReadOnlyList<>).FullName);
+            var iListT = startContext.Compilation.GetTypeByMetadataName(typeof(IList<>).FullName);
+            var iList = startContext.Compilation.GetTypeByMetadataName(typeof(IList).FullName);
+
+            startContext.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeInvocationExpression(nodeContext, enumerableType, iReadOnlyListT, iListT, iList),
+                SyntaxKinds);
+        });
     }
 
     // TODO: analysis can be improved by including scenarios with method chains
     // For example: myList.Skip(5).First() should be refactored to myList[5]
 
-    private static void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context, INamedTypeSymbol enumerableType, INamedTypeSymbol? iReadOnlyListT, INamedTypeSymbol? iListT, INamedTypeSymbol? iList)
     {
         var invocationExpr = (InvocationExpressionSyntax)context.Node;
         if (invocationExpr.Expression is not MemberAccessExpressionSyntax memberAccess ||
             context.SemanticModel.GetSymbolInfo(invocationExpr).Symbol is not IMethodSymbol method ||
             !method.IsExtensionMethod ||
-            !SymbolEqualityComparer.Default.Equals(method.ContainingType, context.Compilation.GetTypeByMetadataName("System.Linq.Enumerable")))
+            !SymbolEqualityComparer.Default.Equals(method.ContainingType, enumerableType))
         {
             return;
         }
@@ -51,16 +64,12 @@ public sealed class UseListIndexer : DiagnosticAnalyzer
             _ => false,
         };
 
-        if (report && IsList(context.SemanticModel.GetTypeInfo(memberAccess.Expression).Type, context.Compilation))
+        if (report && IsList(context.SemanticModel.GetTypeInfo(memberAccess.Expression).Type, iReadOnlyListT, iListT, iList))
             context.ReportDiagnostic(Diagnostic.Create(Descriptor, memberAccess.GetLocation()));
 
-        static bool IsList(ITypeSymbol? type, Compilation compilation)
+        static bool IsList(ITypeSymbol? type, INamedTypeSymbol? iReadOnlyListT, INamedTypeSymbol? iListT, INamedTypeSymbol? iList)
         {
             if (type is null) return false;
-
-            var iReadOnlyListT = compilation.GetTypeByMetadataName(typeof(IReadOnlyList<>).FullName);
-            var iListT = compilation.GetTypeByMetadataName(typeof(IList<>).FullName);
-            var iList = compilation.GetTypeByMetadataName(typeof(IList).FullName);
 
             foreach (var iface in type.AllInterfaces)
             {

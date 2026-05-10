@@ -24,25 +24,31 @@ public sealed class UseEventArgsDotEmpty : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            var eventArgsType = startContext.Compilation.GetTypeByMetadataName("System.EventArgs");
+            if (eventArgsType is null) return;
 
-        context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.ObjectCreationExpression);
+            startContext.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeNode(nodeContext, eventArgsType),
+                SyntaxKind.ObjectCreationExpression);
+        });
     }
 
-    private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol eventArgsType)
     {
-        if (context.Node is not ObjectCreationExpressionSyntax objectCreation)
+        var objectCreation = (ObjectCreationExpressionSyntax)context.Node;
+
+        // Argument list missing or has any args -> not "new EventArgs()" with empty parens. Bail out.
+        if (objectCreation.ArgumentList is not { Arguments.Count: 0 })
             return;
 
         if (context.SemanticModel.GetSymbolInfo(objectCreation.Type).Symbol is not INamedTypeSymbol typeSymbol)
             return;
 
-        if (typeSymbol.ToDisplayString() != "System.EventArgs")
+        if (!SymbolEqualityComparer.Default.Equals(typeSymbol, eventArgsType))
             return;
 
-        if (objectCreation.ArgumentList?.Arguments.Any() != false)
-            return;
-
-        var diagnostic = Diagnostic.Create(Descriptor, objectCreation.GetLocation());
-        context.ReportDiagnostic(diagnostic);
+        context.ReportDiagnostic(Diagnostic.Create(Descriptor, objectCreation.GetLocation()));
     }
 }

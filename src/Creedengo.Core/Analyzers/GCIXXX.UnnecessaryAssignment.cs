@@ -2,11 +2,11 @@ namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCIXXX: Unnecessary assignment.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class UnecessaryAssignment : DiagnosticAnalyzer
+public class UnnecessaryAssignment : DiagnosticAnalyzer
 {
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.GCIXX_UnecessaryAssignment,
+        id: Rule.Ids.GCIXX_UnnecessaryAssignment,
         title: "Unnecessary assignment",
         message: "Assignment is not necessary.",
         category: Rule.Categories.Performance,
@@ -223,8 +223,8 @@ public class UnecessaryAssignment : DiagnosticAnalyzer
                         {
                             var parameters = enclosingSymbol.Kind switch
                             {
-                                SymbolKind.Method => ((IMethodSymbol)symbol).Parameters,
-                                SymbolKind.Property => ((IPropertySymbol)symbol).Parameters,
+                                SymbolKind.Method => ((IMethodSymbol)enclosingSymbol).Parameters,
+                                SymbolKind.Property => ((IPropertySymbol)enclosingSymbol).Parameters,
                                 _ => default
                             };
 

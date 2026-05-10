@@ -27,14 +27,26 @@ public sealed class AvoidAsyncVoidMethodsFixer : CodeFixProvider
 
             foreach (var node in parent.AncestorsAndSelf())
             {
-                if (node is not MethodDeclarationSyntax declaration) continue;
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: "Convert to async Task",
-                        createChangedDocument: _ => RefactorAsync(context.Document, declaration),
-                        equivalenceKey: "Convert to async Task"),
-                    diagnostic);
-                break;
+                if (node is MethodDeclarationSyntax method)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            title: "Convert to async Task",
+                            createChangedDocument: _ => RefactorMethodAsync(context.Document, method),
+                            equivalenceKey: "Convert to async Task"),
+                        diagnostic);
+                    break;
+                }
+                if (node is LocalFunctionStatementSyntax localFunction)
+                {
+                    context.RegisterCodeFix(
+                        CodeAction.Create(
+                            title: "Convert to async Task",
+                            createChangedDocument: _ => RefactorLocalFunctionAsync(context.Document, localFunction),
+                            equivalenceKey: "Convert to async Task"),
+                        diagnostic);
+                    break;
+                }
             }
         }
     }
@@ -44,9 +56,14 @@ public sealed class AvoidAsyncVoidMethodsFixer : CodeFixProvider
     // - It could be added as a global using in a different file, but Roslyn doesn't give easy access to those
     // - The user could have enabled the ImplicitUsings option, which makes the using directives both global and invisible to the analyzer
     // So as a result, we simply don't handle it
-    private static Task<Document> RefactorAsync(Document document, MethodDeclarationSyntax methodDecl) =>
-        document.WithUpdatedRoot(methodDecl, methodDecl.WithReturnType(
-            SyntaxFactory.IdentifierName("Task") // Change the return type of the method to Task
-            .WithLeadingTrivia(methodDecl.ReturnType.GetLeadingTrivia())
-            .WithTrailingTrivia(methodDecl.ReturnType.GetTrailingTrivia())));
+    private static Task<Document> RefactorMethodAsync(Document document, MethodDeclarationSyntax methodDecl) =>
+        document.WithUpdatedRoot(methodDecl, methodDecl.WithReturnType(TaskReturnType(methodDecl.ReturnType)));
+
+    private static Task<Document> RefactorLocalFunctionAsync(Document document, LocalFunctionStatementSyntax localFunction) =>
+        document.WithUpdatedRoot(localFunction, localFunction.WithReturnType(TaskReturnType(localFunction.ReturnType)));
+
+    private static IdentifierNameSyntax TaskReturnType(TypeSyntax originalReturnType) =>
+        SyntaxFactory.IdentifierName("Task")
+            .WithLeadingTrivia(originalReturnType.GetLeadingTrivia())
+            .WithTrailingTrivia(originalReturnType.GetTrailingTrivia());
 }

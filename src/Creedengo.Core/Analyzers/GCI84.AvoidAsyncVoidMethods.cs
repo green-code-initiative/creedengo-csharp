@@ -4,7 +4,7 @@ namespace Creedengo.Core.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> Declarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration);
+    private static readonly ImmutableArray<SyntaxKind> Declarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration, SyntaxKind.LocalFunctionStatement);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -29,12 +29,18 @@ public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
 
     private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)
     {
-        var methodDeclaration = (MethodDeclarationSyntax)context.Node;
-        if (methodDeclaration.Modifiers.Any(SyntaxKind.AsyncKeyword) &&
-            methodDeclaration.ReturnType is PredefinedTypeSyntax returnType &&
-            returnType.Keyword.IsKind(SyntaxKind.VoidKeyword))
+        var (modifiers, returnType, identifier) = context.Node switch
         {
-            context.ReportDiagnostic(Diagnostic.Create(Descriptor, methodDeclaration.Identifier.GetLocation()));
+            MethodDeclarationSyntax m => (m.Modifiers, m.ReturnType, m.Identifier),
+            LocalFunctionStatementSyntax l => (l.Modifiers, l.ReturnType, l.Identifier),
+            _ => default
+        };
+
+        if (modifiers.Any(SyntaxKind.AsyncKeyword) &&
+            returnType is PredefinedTypeSyntax predefined &&
+            predefined.Keyword.IsKind(SyntaxKind.VoidKeyword))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(Descriptor, identifier.GetLocation()));
         }
     }
 }

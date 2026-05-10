@@ -283,4 +283,50 @@ public sealed class VariableCanBeMadeConstantTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task WarnOnNullReferenceTypeInitializerAsync() => VerifyAsync("""
+        public static class Test
+        {
+            public static void Main()
+            {
+                [|string item = null;|]
+                System.Console.WriteLine(item);
+            }
+        }
+        """, """
+        public static class Test
+        {
+            public static void Main()
+            {
+                const string item = null;
+                System.Console.WriteLine(item);
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnNullableValueTypeInitializerAsync() => VerifyAsync("""
+        public static class Test
+        {
+            public static void Main()
+            {
+                int? item = null; // 'const int?' is not allowed (CS0283), so no const suggestion.
+                System.Console.WriteLine(item);
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnUserStructInitializerAsync() => VerifyAsync("""
+        public static class Test
+        {
+            public struct Point { public int X; }
+            public static void Main()
+            {
+                Point item = default; // User-defined structs cannot be const.
+                System.Console.WriteLine(item);
+            }
+        }
+        """);
 }

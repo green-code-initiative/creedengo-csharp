@@ -129,4 +129,142 @@ public sealed class DisposeResourceAsynchronouslyTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task WarnOnAsyncableUsingsInAsyncLocalFunctionAsync() => VerifyAsync("""
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static void Caller()
+            {
+                async Task Inner()
+                {
+                    [|using|] var d = new AsyncDisposableClass();
+                    Console.WriteLine(d);
+                    await Task.Yield();
+                }
+                _ = Inner();
+            }
+        }
+        """, """
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static void Caller()
+            {
+                async Task Inner()
+                {
+                    await using var d = new AsyncDisposableClass();
+                    Console.WriteLine(d);
+                    await Task.Yield();
+                }
+                _ = Inner();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnAsyncableUsingsInAsyncLambdaAsync() => VerifyAsync("""
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static void Caller()
+            {
+                Func<Task> f = async () =>
+                {
+                    [|using|] var d = new AsyncDisposableClass();
+                    Console.WriteLine(d);
+                    await Task.Yield();
+                };
+                _ = f();
+            }
+        }
+        """, """
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static void Caller()
+            {
+                Func<Task> f = async () =>
+                {
+                    await using var d = new AsyncDisposableClass();
+                    Console.WriteLine(d);
+                    await Task.Yield();
+                };
+                _ = f();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnOnAsyncableUsingsInAsyncAnonymousMethodAsync() => VerifyAsync("""
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static void Caller()
+            {
+                Func<Task> f = async delegate
+                {
+                    [|using|] var d = new AsyncDisposableClass();
+                    Console.WriteLine(d);
+                    await Task.Yield();
+                };
+                _ = f();
+            }
+        }
+        """, """
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static void Caller()
+            {
+                Func<Task> f = async delegate
+                {
+                    await using var d = new AsyncDisposableClass();
+                    Console.WriteLine(d);
+                    await Task.Yield();
+                };
+                _ = f();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnOnAsyncableUsingsInNonAsyncLambdaInsideAsyncMethodAsync() => VerifyAsync("""
+        using System;
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            private sealed class AsyncDisposableClass : IDisposable, IAsyncDisposable { public void Dispose() { } public ValueTask DisposeAsync() => default; }
+
+            public static async Task Caller()
+            {
+                Action a = () =>
+                {
+                    using var d = new AsyncDisposableClass(); // Lambda is not async — should NOT be flagged.
+                    Console.WriteLine(d);
+                };
+                a();
+                await Task.Yield();
+            }
+        }
+        """);
 }

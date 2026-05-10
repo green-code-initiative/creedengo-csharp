@@ -3,7 +3,7 @@
 [TestClass]
 public sealed class UnnecessaryAssignmentTests
 {
-    private static readonly AnalyzerDlg VerifyAsync = TestRunner.VerifyAsync<UnecessaryAssignment>;
+    private static readonly AnalyzerDlg VerifyAsync = TestRunner.VerifyAsync<UnnecessaryAssignment>;
 
     [TestMethod]
     public Task EmptyCodeAsync() => VerifyAsync("");
@@ -276,6 +276,24 @@ public sealed class UnnecessaryAssignmentTests
 
                     return x;
                 };
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task TestAssignmentToMethodParameterDoesNotCrash() => VerifyAsync("""
+        class C
+        {
+            void M(int p, bool f)
+            {
+                if (f)
+                {
+                    p = 1;
+                }
+                else
+                {
+                    p = 2;
+                }
             }
         }
         """);
