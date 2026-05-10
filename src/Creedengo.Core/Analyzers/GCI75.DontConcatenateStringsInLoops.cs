@@ -1,15 +1,16 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI75: Don't concatenate strings in loops.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = [
+    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = ImmutableArray.Create(
         SyntaxKind.ForStatement,
         SyntaxKind.ForEachStatement,
         SyntaxKind.WhileStatement,
-        SyntaxKind.DoStatement];
-    private static readonly ImmutableArray<OperationKind> Invocations = [OperationKind.Invocation];
+        SyntaxKind.DoStatement);
+
+    private static readonly ImmutableArray<OperationKind> Invocations = ImmutableArray.Create(OperationKind.Invocation);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -22,7 +23,7 @@ public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

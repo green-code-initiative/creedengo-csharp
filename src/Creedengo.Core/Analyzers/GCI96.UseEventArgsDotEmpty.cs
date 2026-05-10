@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI96: Use 'EventArgs.Empty' instead of 'new EventArgs()'.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -14,7 +14,7 @@ public sealed class UseEventArgsDotEmpty : DiagnosticAnalyzer
         description: "Use 'EventArgs.Empty' instead of creating a new instance of 'EventArgs' to improve performance and reduce memory allocations.");
 
 
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;

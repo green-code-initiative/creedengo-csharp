@@ -1,10 +1,10 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI93: Return Task directly.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> MethodDeclarations = [SyntaxKind.MethodDeclaration];
+    private static readonly ImmutableArray<SyntaxKind> MethodDeclarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -17,7 +17,7 @@ public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

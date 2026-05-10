@@ -1,13 +1,13 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI69: Don't call loop invariant functions in loop conditions.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DontCallFunctionsInLoopConditions : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = [
+    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = ImmutableArray.Create(
         SyntaxKind.ForStatement,
         SyntaxKind.WhileStatement,
-        SyntaxKind.DoStatement];
+        SyntaxKind.DoStatement);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -20,7 +20,7 @@ public sealed class DontCallFunctionsInLoopConditions : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

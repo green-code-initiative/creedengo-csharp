@@ -1,6 +1,6 @@
 {
     "solution": {
-        "path": "creedengo-csharp.sln",
+        "path": "creedengo-csharp.slnx",
         "projects": [
             "src\\Creedengo.Core\\Creedengo.Core.csproj",
             "src\\Creedengo.Tool\\Creedengo.Tool.csproj"

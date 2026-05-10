@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace Creedengo.Core.Analyzers;
 
@@ -8,7 +8,7 @@ public sealed class UseListIndexerFixer : CodeFixProvider
 {
     /// <inheritdoc/>
     public override ImmutableArray<string> FixableDiagnosticIds => _fixableDiagnosticIds;
-    private static readonly ImmutableArray<string> _fixableDiagnosticIds = [UseListIndexer.Descriptor.Id];
+    private static readonly ImmutableArray<string> _fixableDiagnosticIds = ImmutableArray.Create(UseListIndexer.Descriptor.Id);
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]

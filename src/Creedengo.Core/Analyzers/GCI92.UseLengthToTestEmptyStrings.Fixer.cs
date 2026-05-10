@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI92 fixer: Use Length to test empty strings.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseLengthToTestEmptyStringsFixer)), Shared]
@@ -6,7 +6,7 @@ public sealed class UseLengthToTestEmptyStringsFixer : CodeFixProvider
 {
     /// <inheritdoc/>
     public override ImmutableArray<string> FixableDiagnosticIds => _fixableDiagnosticIds;
-    private static readonly ImmutableArray<string> _fixableDiagnosticIds = [UseLengthToTestEmptyStrings.Descriptor.Id];
+    private static readonly ImmutableArray<string> _fixableDiagnosticIds = ImmutableArray.Create(UseLengthToTestEmptyStrings.Descriptor.Id);
 
     /// <inheritdoc/>
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;

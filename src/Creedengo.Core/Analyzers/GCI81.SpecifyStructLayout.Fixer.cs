@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace Creedengo.Core.Analyzers;
 
@@ -8,7 +8,7 @@ public sealed class SpecifyStructLayoutFixer : CodeFixProvider
 {
     /// <inheritdoc/>
     public override ImmutableArray<string> FixableDiagnosticIds => _fixableDiagnosticIds;
-    private static readonly ImmutableArray<string> _fixableDiagnosticIds = [SpecifyStructLayout.Descriptor.Id];
+    private static readonly ImmutableArray<string> _fixableDiagnosticIds = ImmutableArray.Create(SpecifyStructLayout.Descriptor.Id);
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]

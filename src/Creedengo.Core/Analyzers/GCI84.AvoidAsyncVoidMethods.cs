@@ -1,10 +1,10 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI84: Avoid async void methods.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> Declarations = [SyntaxKind.MethodDeclaration];
+    private static readonly ImmutableArray<SyntaxKind> Declarations = ImmutableArray.Create(SyntaxKind.MethodDeclaration);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -17,7 +17,7 @@ public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

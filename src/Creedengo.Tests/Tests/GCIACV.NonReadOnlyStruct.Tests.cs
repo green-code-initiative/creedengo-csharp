@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Tests.Tests;
+namespace Creedengo.Tests.Tests;
 
 [TestClass]
 public sealed class NonReadOnlyStructTests
@@ -158,7 +158,7 @@ public sealed class NonReadOnlyStructTests
         {
         }
         """);
-        
+
     [TestMethod]
     public Task NoWarningOnRefReadOnlyWithReadOnlyStruct() => VerifyAsync("""
         public readonly struct ReadOnlyTest
@@ -168,7 +168,7 @@ public sealed class NonReadOnlyStructTests
             }
         }
         """);
-        
+
     [TestMethod]
     public Task WarningOnRefReadOnlyWithNonReadOnlyStruct() => VerifyAsync("""
         public struct Test
@@ -185,7 +185,7 @@ public sealed class NonReadOnlyStructTests
             }
         }
         """);
-          [TestMethod]
+    [TestMethod]
     public Task WarningOnRefReadOnlyWithNonReadOnlyStructRemoveReadOnly() => VerifyAsync("""
         public struct Test
         {
@@ -201,7 +201,7 @@ public sealed class NonReadOnlyStructTests
             }
         }
         """);
-          [TestMethod]
+    [TestMethod]
     public Task WarningOnRefReadOnlyWithNonReadOnlyStructRemoveBoth() => VerifyAsync("""
         public struct Test
         {
@@ -217,7 +217,7 @@ public sealed class NonReadOnlyStructTests
             }
         }
         """);
-          [TestMethod]
+    [TestMethod]
     public Task WarningOnMixedModifiersWithRefReadOnlyAndIn() => VerifyAsync("""
         public struct Test
         {

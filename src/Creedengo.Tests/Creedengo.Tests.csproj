@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<Title>Creedengo.Tests</Title>
 		<Product>Creedengo.Tests</Product>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<IsTestProject>true</IsTestProject>
 		<NoWarn>$(NoWarn);1591;CA1515</NoWarn>
 	</PropertyGroup>
@@ -20,7 +20,6 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" PrivateAssets="all" />
 		<PackageReference Include="MSTest.TestAdapter" PrivateAssets="all" />
 		<PackageReference Include="MSTest.TestFramework" PrivateAssets="all" />
-		<PackageReference Include="System.Formats.Asn1" />
 	</ItemGroup>
 
 	<ItemGroup>

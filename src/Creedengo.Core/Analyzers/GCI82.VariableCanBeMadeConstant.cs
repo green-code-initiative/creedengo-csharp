@@ -1,11 +1,11 @@
-﻿
+
 namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI82: Variable can be made constant.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = [SyntaxKind.LocalDeclarationStatement, SyntaxKind.FieldDeclaration];
+    private static readonly ImmutableArray<SyntaxKind> SyntaxKinds = ImmutableArray.Create(SyntaxKind.LocalDeclarationStatement, SyntaxKind.FieldDeclaration);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -18,7 +18,7 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
@@ -108,8 +108,7 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
         {
             if (variable.Initializer is null) return;
 
-            var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken) as IFieldSymbol;
-            if (variableSymbol is null) return;
+            if (context.SemanticModel.GetDeclaredSymbol(variable, context.CancellationToken) is not IFieldSymbol variableSymbol) return;
 
             // Only allow types that can be const
             if (!IsAllowedConstType(variableSymbol.Type)) return;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace Creedengo.Core.Analyzers;
 
@@ -6,7 +6,7 @@ namespace Creedengo.Core.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MakeTypeSealed : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SymbolKind> SymbolKinds = [SymbolKind.NamedType];
+    private static readonly ImmutableArray<SymbolKind> SymbolKinds = ImmutableArray.Create(SymbolKind.NamedType);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -19,7 +19,7 @@ public sealed class MakeTypeSealed : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

@@ -1,4 +1,5 @@
-﻿namespace Creedengo.Core.Extensions;
+namespace Creedengo.Core.Extensions;
+
 internal static class IfStatementSyntaxExtensions
 {
     /// <summary>

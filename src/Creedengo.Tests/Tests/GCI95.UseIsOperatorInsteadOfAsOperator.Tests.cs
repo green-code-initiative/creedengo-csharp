@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Tests.Tests;
+namespace Creedengo.Tests.Tests;
 
 [TestClass]
 public sealed class UseIsOperatorInsteadOfAsOperatorTests
@@ -244,7 +244,7 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
         }
         """);
 
-        [TestMethod]
+    [TestMethod]
     public Task DoNotUseAsOperatorInsteadOfIsTernaryOperationNotNullComparisonAsync() => VerifyAndFixAsync("""
         class TestClass
         {
@@ -255,7 +255,7 @@ public sealed class UseIsOperatorInsteadOfAsOperatorTests
             }
         }
         """,
-        """
+    """
         class TestClass
         {
             void TestMethod()

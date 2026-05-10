@@ -1,4 +1,4 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI93 fixer: Return Task directly.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReturnTaskDirectly)), Shared]
@@ -6,7 +6,7 @@ public sealed class ReturnTaskDirectlyFixer : CodeFixProvider
 {
     /// <inheritdoc/>
     public override ImmutableArray<string> FixableDiagnosticIds => _fixableDiagnosticIds;
-    private static readonly ImmutableArray<string> _fixableDiagnosticIds = [ReturnTaskDirectly.Descriptor.Id];
+    private static readonly ImmutableArray<string> _fixableDiagnosticIds = ImmutableArray.Create(ReturnTaskDirectly.Descriptor.Id);
 
     /// <inheritdoc/>
     [ExcludeFromCodeCoverage]

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net;
 using System.Text;
 
 namespace Creedengo.Tool.Services;
@@ -46,14 +47,22 @@ static partial class ReportService
               </tr>
         """);
 
-        public static async Task WriteToStreamAsync(StreamWriter writer, List<DiagnosticInfo> diagnostics)
+        public static async Task WriteToStreamAsync(StreamWriter writer, List<DiagnosticInfo> diagnostics, CancellationToken cancellationToken = default)
         {
-            await writer.WriteLineAsync(Header).ConfigureAwait(false);
+            await writer.WriteLineAsync(Header.AsMemory(), cancellationToken).ConfigureAwait(false);
 
             foreach (var diag in diagnostics)
-                await writer.WriteLineAsync(string.Format(CultureInfo.InvariantCulture, Row, diag.Directory, diag.File, diag.Location, diag.Severity, diag.Code, diag.Message)).ConfigureAwait(false);
+                await writer.WriteLineAsync(string.Format(
+                    CultureInfo.InvariantCulture,
+                    Row,
+                    WebUtility.HtmlEncode(diag.Directory),
+                    WebUtility.HtmlEncode(diag.File),
+                    WebUtility.HtmlEncode(diag.Location),
+                    WebUtility.HtmlEncode(diag.Severity),
+                    WebUtility.HtmlEncode(diag.Code),
+                    WebUtility.HtmlEncode(diag.Message)).AsMemory(), cancellationToken).ConfigureAwait(false);
 
-            await writer.WriteLineAsync(Footer).ConfigureAwait(false);
+            await writer.WriteLineAsync(Footer.AsMemory(), cancellationToken).ConfigureAwait(false);
         }
     }
 }

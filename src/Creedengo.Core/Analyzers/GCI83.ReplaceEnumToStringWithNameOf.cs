@@ -1,11 +1,11 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI83: Replace enum ToString with nameof.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReplaceEnumToStringWithNameOf : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<OperationKind> Invocation = [OperationKind.Invocation];
-    private static readonly ImmutableArray<OperationKind> Interpolation = [OperationKind.Interpolation];
+    private static readonly ImmutableArray<OperationKind> Invocation = ImmutableArray.Create(OperationKind.Invocation);
+    private static readonly ImmutableArray<OperationKind> Interpolation = ImmutableArray.Create(OperationKind.Interpolation);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -18,7 +18,7 @@ public sealed class ReplaceEnumToStringWithNameOf : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

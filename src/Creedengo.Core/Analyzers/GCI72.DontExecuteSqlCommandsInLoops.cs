@@ -1,10 +1,10 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI72: Don't execute SQL commands in loops.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DontExecuteSqlCommandsInLoops : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> Invocations = [SyntaxKind.InvocationExpression];
+    private static readonly ImmutableArray<SyntaxKind> Invocations = ImmutableArray.Create(SyntaxKind.InvocationExpression);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -17,7 +17,7 @@ public sealed class DontExecuteSqlCommandsInLoops : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)

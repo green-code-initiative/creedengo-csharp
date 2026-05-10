@@ -1,11 +1,11 @@
-﻿namespace Creedengo.Core.Analyzers;
+namespace Creedengo.Core.Analyzers;
 
 /// <summary>GCI88: Dispose resource asynchronously.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DisposeResourceAsynchronously : DiagnosticAnalyzer
 {
-    private static readonly ImmutableArray<SyntaxKind> UsingStatementKinds = [SyntaxKind.UsingStatement];
-    private static readonly ImmutableArray<SyntaxKind> UsingDeclarationKinds = [SyntaxKind.LocalDeclarationStatement];
+    private static readonly ImmutableArray<SyntaxKind> UsingStatementKinds = ImmutableArray.Create(SyntaxKind.UsingStatement);
+    private static readonly ImmutableArray<SyntaxKind> UsingDeclarationKinds = ImmutableArray.Create(SyntaxKind.LocalDeclarationStatement);
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
@@ -18,7 +18,7 @@ public sealed class DisposeResourceAsynchronously : DiagnosticAnalyzer
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
-    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = [Descriptor];
+    private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
