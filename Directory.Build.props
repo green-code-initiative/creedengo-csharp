@@ -19,12 +19,10 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<TreatWarningsAsErrors Condition="'$(Configuration)' != 'Debug'">true</TreatWarningsAsErrors>
 
-		<!--Dummy value; release builds override it via -p:Version=<tag> in the create-tag-release GitHub workflow-->
-		<Version>1.0.0</Version>
-		<AssemblyVersion>$(Version)</AssemblyVersion>
-		<FileVersion>$(Version)</FileVersion>
-		<AssemblyInformationalVersion>$(Version)</AssemblyInformationalVersion>
-		<PackageVersion>$(Version)</PackageVersion>
+		<!--Dummy values; release builds override them via -p:VersionPrefix=<X.Y.Z> -p:VersionSuffix=<betaN|empty> in the create-tag-release GitHub workflow.
+		    AssemblyVersion / FileVersion / Version / AssemblyInformationalVersion / PackageVersion are derived from VersionPrefix and VersionSuffix by the SDK.-->
+		<VersionPrefix>1.0.0</VersionPrefix>
+		<VersionSuffix></VersionSuffix>
 
 		<!-- SourceLink -->
 		<DebugType>embedded</DebugType>
