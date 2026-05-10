@@ -229,4 +229,79 @@ public sealed class ReturnTaskDirectlyTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task DontWarnWhenReturnTypeIsValueTaskAndAwaitedExpressionIsTaskAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static async ValueTask DisposeAsync()
+            {
+                await Task.Delay(0);
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnWhenReturnTypeIsValueTaskTAndAwaitedExpressionIsTaskTAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static async ValueTask<int> Run() => await Task.FromResult(0);
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnWhenReturnTypeIsTaskAndAwaitedExpressionIsValueTaskAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static ValueTask GetValueTask() => default;
+            public static async Task Run() => await GetValueTask();
+        }
+        """);
+
+    [TestMethod]
+    public Task DontWarnWhenReturnTypeIsTaskTAndAwaitedExpressionIsValueTaskTAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static ValueTask<int> GetValueTask() => default;
+            public static async Task<int> Run() => await GetValueTask();
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnWhenReturnTypeAndAwaitedExpressionAreBothValueTaskAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static ValueTask GetValueTask() => default;
+            public static [|async|] ValueTask Run() => await GetValueTask().ConfigureAwait(false);
+        }
+        """, """
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static ValueTask GetValueTask() => default;
+            public static ValueTask Run() => GetValueTask();
+        }
+        """);
+
+    [TestMethod]
+    public Task WarnWhenReturnTypeAndAwaitedExpressionAreBothValueTaskTAsync() => VerifyAsync("""
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static ValueTask<int> GetValueTask() => default;
+            public static [|async|] ValueTask<int> Run() => await GetValueTask();
+        }
+        """, """
+        using System.Threading.Tasks;
+        public static class Test
+        {
+            public static ValueTask<int> GetValueTask() => default;
+            public static ValueTask<int> Run() => GetValueTask();
+        }
+        """);
 }

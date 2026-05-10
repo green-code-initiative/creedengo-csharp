@@ -49,6 +49,27 @@ public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
         foreach (var node in awaitExpr.DescendantNodes())
             if (node is AwaitExpressionSyntax) return;
 
+        // Don't report if removing 'async' would change the return type. The fix replaces 'await x' (or 'await x.ConfigureAwait(...)')
+        // with 'return x', so x's type must already match the method's return type. Otherwise (e.g. 'async ValueTask' awaiting
+        // a Task) the suggested fix would not compile.
+        if (!ReturnTypeMatchesAwaitedExpression(context.SemanticModel, methodDeclaration, awaitExpr, context.CancellationToken))
+            return;
+
         context.ReportDiagnostic(Diagnostic.Create(Descriptor, methodDeclaration.Modifiers[asyncIndex].GetLocation()));
+    }
+
+    private static bool ReturnTypeMatchesAwaitedExpression(SemanticModel semanticModel, MethodDeclarationSyntax method, AwaitExpressionSyntax awaitExpr, System.Threading.CancellationToken cancellationToken)
+    {
+        if (semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol is not ITypeSymbol returnType)
+            return false;
+
+        // The fixer strips a trailing .ConfigureAwait(...) before returning, so compare against the receiver's type when present.
+        var expressionToReturn = awaitExpr.Expression is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.Text: "ConfigureAwait" } memberAccess }
+            ? memberAccess.Expression
+            : awaitExpr.Expression;
+
+        // Compare wrappers only (Task vs ValueTask) and let the compiler vouch for type-argument compatibility.
+        var expressionType = semanticModel.GetTypeInfo(expressionToReturn, cancellationToken).Type;
+        return expressionType is not null && SymbolEqualityComparer.Default.Equals(returnType.OriginalDefinition, expressionType.OriginalDefinition);
     }
 }
