@@ -14,25 +14,31 @@ jobs:
   publish-nuget:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/cache/restore@v4
-      with:
-        path: nupkg
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
+    - uses: actions/checkout@v6
 
-    - run: echo "PACKAGE=$(find . -name 'Creedengo.${{ inputs.tag }}.nupkg' | head -n 1)" >> $GITHUB_ENV
-  
-    - run: dotnet nuget push ${{ env.PACKAGE }} -k "${{ secrets.nuget-api-key }}" -s https://api.nuget.org/v3/index.json
-  
+    - uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+
+    - uses: actions/download-artifact@v8
+      with:
+        name: nupkg
+        path: nupkg
+
+    - run: dotnet nuget push "nupkg/Creedengo.${{ inputs.tag }}.nupkg" -k "${{ secrets.nuget-api-key }}" -s https://api.nuget.org/v3/index.json
+
   publish-tool:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/cache/restore@v4
-      with:
-        path: tool
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
+    - uses: actions/checkout@v6
 
-    - run: echo "PACKAGE=$(find . -name 'Creedengo.Tool.${{ inputs.tag }}.nupkg' | head -n 1)" >> $GITHUB_ENV
-  
-    - run: dotnet nuget push ${{ env.PACKAGE }} -k "${{ secrets.nuget-api-key }}" -s https://api.nuget.org/v3/index.json
+    - uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+
+    - uses: actions/download-artifact@v8
+      with:
+        name: tool
+        path: tool
+
+    - run: dotnet nuget push "tool/Creedengo.Tool.${{ inputs.tag }}.nupkg" -k "${{ secrets.nuget-api-key }}" -s https://api.nuget.org/v3/index.json

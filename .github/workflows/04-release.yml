@@ -14,19 +14,17 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/cache/restore@v4
+    - uses: actions/download-artifact@v8
       with:
+        name: nupkg
         path: nupkg
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
 
-    - uses: actions/cache/restore@v4
+    - uses: actions/download-artifact@v8
       with:
+        name: tool
         path: tool
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
 
-    - uses: softprops/action-gh-release@v2
+    - uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ inputs.tag }}
         name: ${{ inputs.tag }}
@@ -34,5 +32,5 @@ jobs:
         prerelease: ${{ inputs.tag != inputs.version }}
         body: "Release of version ${{ inputs.tag }}"
         files: |
-          nupkg/**/Creedengo.${{ inputs.tag }}.nupkg
-          tool/**/Creedengo.Tool.${{ inputs.tag }}.nupkg
+          nupkg/Creedengo.${{ inputs.tag }}.nupkg
+          tool/Creedengo.Tool.${{ inputs.tag }}.nupkg

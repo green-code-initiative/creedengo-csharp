@@ -19,7 +19,7 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<TreatWarningsAsErrors Condition="'$(Configuration)' != 'Debug'">true</TreatWarningsAsErrors>
 
-		<!--Dummy value, versioning is automatically handled by the create-tag-release GitHub workflow-->
+		<!--Dummy value; release builds override it via -p:Version=<tag> in the create-tag-release GitHub workflow-->
 		<Version>1.0.0</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>

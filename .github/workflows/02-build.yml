@@ -11,51 +11,39 @@ jobs:
   build-nuget:
     runs-on: ubuntu-latest
     steps:
-    - name: Restore versioned sources
-      uses: actions/cache/restore@v4
-      with:
-        path: |
-          !**/.git
-          **/*
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
+    - uses: actions/checkout@v6
 
-    - uses: actions/setup-dotnet@v4
-  
-    - run: dotnet restore NuGetOnly.slnf
-  
-    - run: dotnet build NuGetOnly.slnf -c Release --no-restore
-  
-    - run: dotnet pack NuGetOnly.slnf -c Release --no-build -o ./nupkg -p:Version=${{ inputs.tag }}
-  
-    - uses: actions/cache/save@v4
+    - uses: actions/setup-dotnet@v5
       with:
-        path: nupkg
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
+        global-json-file: global.json
+
+    - run: dotnet restore NuGetOnly.slnf
+
+    - run: dotnet build NuGetOnly.slnf -c Release --no-restore -p:Version=${{ inputs.tag }}
+
+    - run: dotnet pack NuGetOnly.slnf -c Release --no-build -o ./nupkg -p:Version=${{ inputs.tag }}
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: nupkg
+        path: nupkg/*.nupkg
 
   build-tool:
     runs-on: ubuntu-latest
     steps:
-    - name: Restore versioned sources
-      uses: actions/cache/restore@v4
-      with:
-        path: |
-          !**/.git
-          **/*
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
+    - uses: actions/checkout@v6
 
-    - uses: actions/setup-dotnet@v4
-  
-    - run: dotnet restore ToolOnly.slnf
-  
-    - run: dotnet build ToolOnly.slnf -c Release --no-restore
-  
-    - run: dotnet pack ToolOnly.slnf -c Release --no-build -o ./tool -p:Version=${{ inputs.tag }}
-  
-    - uses: actions/cache/save@v4
+    - uses: actions/setup-dotnet@v5
       with:
-        path: tool
-        key: cache-${{ github.sha }}
-        enableCrossOsArchive: true
+        global-json-file: global.json
+
+    - run: dotnet restore ToolOnly.slnf
+
+    - run: dotnet build ToolOnly.slnf -c Release --no-restore -p:Version=${{ inputs.tag }}
+
+    - run: dotnet pack ToolOnly.slnf -c Release -o ./tool -p:Version=${{ inputs.tag }}
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: tool
+        path: tool/*.nupkg
