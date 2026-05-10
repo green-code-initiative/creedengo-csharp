@@ -24,7 +24,7 @@ jobs:
 
     - run: dotnet build NuGetOnly.slnf -c Release --no-restore -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
 
-    - run: dotnet pack NuGetOnly.slnf -c Release --no-build -o ./nupkg -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
+    - run: dotnet pack NuGetOnly.slnf -c Release -o ./nupkg -p:VersionPrefix=${{ inputs.versionPrefix }} -p:VersionSuffix=${{ inputs.versionSuffix }}
 
     - uses: actions/upload-artifact@v7
       with:

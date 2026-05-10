@@ -9,6 +9,12 @@ permissions:
   actions: write
   contents: write
 
+# Serialize tag releases. Parallel pushes (e.g. quick re-tagging) would otherwise race on `dotnet nuget push`.
+# cancel-in-progress: false — never abort an in-flight publish; queue the second tag and let it run after.
+concurrency:
+  group: create-tag-release
+  cancel-in-progress: false
+
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true

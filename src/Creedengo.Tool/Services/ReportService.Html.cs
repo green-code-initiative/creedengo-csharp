@@ -58,7 +58,7 @@ static partial class ReportService
                     WebUtility.HtmlEncode(diag.Directory),
                     WebUtility.HtmlEncode(diag.File),
                     WebUtility.HtmlEncode(diag.Location),
-                    WebUtility.HtmlEncode(diag.Severity),
+                    diag.Severity, // DiagnosticSeverity.ToString() — always HTML-safe
                     WebUtility.HtmlEncode(diag.Code),
                     WebUtility.HtmlEncode(diag.Message)).AsMemory(), cancellationToken).ConfigureAwait(false);
 
