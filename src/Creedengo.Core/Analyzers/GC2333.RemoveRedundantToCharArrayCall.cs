@@ -9,7 +9,7 @@ public sealed class RemoveRedundantToCharArrayCall : DiagnosticAnalyzer
 
     /// <summary>The diagnostic descriptor.</summary>
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
-        id: Rule.Ids.GC2333_RemoveRedundantToCharArrayCall,
+        id: Rule.Ids.GCI2333_RemoveRedundantToCharArrayCall,
         title: "Remove redundant 'ToCharArray' call",
         message: "The 'ToCharArray' call is redundant",
         category: Rule.Categories.Performance,
@@ -47,6 +47,9 @@ public sealed class RemoveRedundantToCharArrayCall : DiagnosticAnalyzer
 
         if (methodSymbol.ContainingType.SpecialType != SpecialType.System_String)
             return;
+
+        if (methodSymbol.Parameters.Length != 0)
+             return;
 
         context.ReportDiagnostic(Diagnostic.Create(Descriptor, memberAccess.Name.GetLocation()));
     }

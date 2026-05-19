@@ -24,6 +24,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageTags>EcoCode, Creedengo, GCI, Green Code Initiative, Analyzers, Environment, Green</PackageTags>
 		<PackageReleaseNotes></PackageReleaseNotes>
+		<RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
 	</PropertyGroup>
 
 	<ItemGroup>
