@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Creedengo.Sandbox;
+﻿namespace Creedengo.Sandbox;
 
 internal class RCS1200Sandbox
 {

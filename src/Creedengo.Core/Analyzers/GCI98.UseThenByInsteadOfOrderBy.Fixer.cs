@@ -20,7 +20,7 @@ public sealed class UseThenByInsteadOfOrderByFixer : CodeFixProvider
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            if (root.FindToken(diagnostic.Location.SourceSpan.Start).Parent is not IdentifierNameSyntax nameSyntax)
+            if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not SimpleNameSyntax nameSyntax)
                 continue;
             if (nameSyntax.Parent is not MemberAccessExpressionSyntax memberAccess)
                 continue;
@@ -37,11 +37,13 @@ public sealed class UseThenByInsteadOfOrderByFixer : CodeFixProvider
     private static Task<Document> FixAsync(
         Document document,
         MemberAccessExpressionSyntax memberAccess,
-        IdentifierNameSyntax nameSyntax)
+        SimpleNameSyntax nameSyntax)
     {
-        var newName = nameSyntax.Identifier.Text == "OrderBy" ? "ThenBy" : "ThenByDescending";
-        var newMemberAccess = memberAccess.WithName(
-            SyntaxFactory.IdentifierName(newName).WithTriviaFrom(nameSyntax));
+        var newIdentifier = nameSyntax.Identifier.Text == "OrderBy" ? "ThenBy" : "ThenByDescending";
+        SimpleNameSyntax newNameSyntax = nameSyntax is GenericNameSyntax generic
+            ? generic.WithIdentifier(SyntaxFactory.Identifier(newIdentifier))
+            : SyntaxFactory.IdentifierName(newIdentifier);
+        var newMemberAccess = memberAccess.WithName(newNameSyntax.WithTriviaFrom(nameSyntax));
         return document.WithUpdatedRoot(memberAccess, newMemberAccess);
     }
 }
