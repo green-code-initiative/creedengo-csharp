@@ -37,6 +37,11 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
         if (node is not InvocationExpressionSyntax invocation) return document;
         if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess) return document;
 
+        // Detect EOL style from existing document
+        var eolTrivia = editor.OriginalRoot.DescendantTrivia()
+            .FirstOrDefault(t => t.IsKind(SyntaxKind.EndOfLineTrivia));
+        var eol = eolTrivia != default ? eolTrivia : SyntaxFactory.ElasticLineFeed;
+
         var methodName = memberAccess.Name.Identifier.Text;
         var args = invocation.ArgumentList.Arguments;
         if (args.Count < 2) return document;
@@ -61,6 +66,10 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
         var constructorArgs = new[] { SyntaxFactory.Argument(patternArg.Expression) }
             .Concat(constructorExtraArgs.Select(a => SyntaxFactory.Argument(a.Expression)));
 
+        // Find containing method for indentation and insertion point
+        var containingMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+        if (containingMethod is null) return document;
+
         // Create field: private readonly Regex _regex = new Regex(pattern);
         var fieldDeclaration = SyntaxFactory.FieldDeclaration(
             SyntaxFactory.VariableDeclaration(
@@ -76,8 +85,8 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
                 SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
                 SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)))
             .NormalizeWhitespace()
-            .WithLeadingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed)
-            .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed, SyntaxFactory.CarriageReturnLineFeed);
+            .WithLeadingTrivia(containingMethod.GetLeadingTrivia())
+            .WithTrailingTrivia(eol, eol);
 
         // Replace invocation: _regex.IsMatch(input [, remaining])
         var instanceArgs = new[] { SyntaxFactory.Argument(inputArg.Expression) }
@@ -91,11 +100,7 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
             SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(instanceArgs)));
 
         editor.ReplaceNode(invocation, newInvocation);
-
-        // Insert field before the containing method
-        var containingMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-        if (containingMethod is not null)
-            editor.InsertBefore(containingMethod, fieldDeclaration);
+        editor.InsertBefore(containingMethod, fieldDeclaration);
 
         return editor.GetChangedDocument();
     }
