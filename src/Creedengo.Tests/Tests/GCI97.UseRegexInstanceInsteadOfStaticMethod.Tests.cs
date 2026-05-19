@@ -91,4 +91,81 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task StaticRegexInStaticMethodShouldReportWithStaticFieldAsync() => VerifyAsync("""
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            public static void Run()
+            {
+                bool isMatch = [|Regex.IsMatch("abc", @"\w")|];
+            }
+        }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private static readonly Regex _regex = new Regex(@"\w");
+
+            public static void Run()
+            {
+                bool isMatch = _regex.IsMatch("abc");
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task StaticRegexInPropertyShouldReportAsync() => VerifyAsync("""
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            public bool IsValid => [|Regex.IsMatch("abc", @"\w")|];
+        }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w");
+
+            public bool IsValid => _regex.IsMatch("abc");
+        }
+        """);
+
+    [TestMethod]
+    public Task StaticRegexWithNonConstantPatternShouldReportButNotFixAsync() => VerifyAsync("""
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            public void Run(string pattern)
+            {
+                bool isMatch = [|Regex.IsMatch("abc", pattern)|];
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task StaticRegexWithTimeoutShouldReportAndFixAsync() => VerifyAsync("""
+        using System;
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            public void Run()
+            {
+                bool isMatch = [|Regex.IsMatch("abc", @"\w", RegexOptions.None, TimeSpan.FromSeconds(1))|];
+            }
+        }
+        """, """
+        using System;
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w", RegexOptions.None, TimeSpan.FromSeconds(1));
+
+            public void Run()
+            {
+                bool isMatch = _regex.IsMatch("abc");
+            }
+        }
+        """);
 }

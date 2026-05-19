@@ -50,27 +50,48 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
         var inputArg = args[0];
         var patternArg = args[1];
 
-        // Build remaining args (skip input and pattern, e.g. RegexOptions)
-        var remainingArgs = new SyntaxList<ArgumentSyntax>();
+        // Only offer fix when pattern is a constant expression (literal, const field, etc.)
+        var patternConstant = editor.SemanticModel.GetConstantValue(patternArg.Expression, token);
+        if (!patternConstant.HasValue) return document;
+
+        // Build remaining args (skip input and pattern, e.g. RegexOptions, TimeSpan)
         var constructorExtraArgs = new SyntaxList<ArgumentSyntax>();
+        var instanceExtraArgs = new SyntaxList<ArgumentSyntax>();
         for (int i = 2; i < args.Count; i++)
         {
             var argType = editor.SemanticModel.GetTypeInfo(args[i].Expression, token).Type;
-            if (argType is not null && argType.Name == "RegexOptions")
-                constructorExtraArgs = constructorExtraArgs.Add(args[i]);
+            if (argType is not null && (argType.Name == "RegexOptions" || argType.Name == "TimeSpan"))
+                constructorExtraArgs = constructorExtraArgs.Add(args[i].WithNameColon(null));
             else
-                remainingArgs = remainingArgs.Add(args[i]);
+                instanceExtraArgs = instanceExtraArgs.Add(args[i].WithNameColon(null));
         }
 
-        // Build constructor arguments: pattern [, options]
+        // Find containing member (method, property, constructor, etc.) and containing type
+        var containingMember = invocation.FirstAncestorOrSelf<MemberDeclarationSyntax>(
+            n => n is MethodDeclarationSyntax or PropertyDeclarationSyntax or ConstructorDeclarationSyntax or EventDeclarationSyntax);
+        if (containingMember is null) return document;
+
+        var containingType = containingMember.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+        if (containingType is null) return document;
+
+        // Determine if the containing member is static
+        bool isStaticContext = containingMember.Modifiers.Any(SyntaxKind.StaticKeyword);
+
+        // Build constructor arguments: pattern [, options] — preserve original expressions
         var constructorArgs = new[] { SyntaxFactory.Argument(patternArg.Expression) }
-            .Concat(constructorExtraArgs.Select(a => SyntaxFactory.Argument(a.Expression)));
+            .Concat(constructorExtraArgs.Select(a => a));
 
-        // Find containing method for indentation and insertion point
-        var containingMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-        if (containingMethod is null) return document;
+        // Build field modifiers: private [static] readonly
+        var modifiers = isStaticContext
+            ? SyntaxFactory.TokenList(
+                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
+                SyntaxFactory.Token(SyntaxKind.StaticKeyword),
+                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword))
+            : SyntaxFactory.TokenList(
+                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
+                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
 
-        // Create field: private readonly Regex _regex = new Regex(pattern);
+        // Create field: private [static] readonly Regex _regex = new Regex(pattern);
         var fieldDeclaration = SyntaxFactory.FieldDeclaration(
             SyntaxFactory.VariableDeclaration(
                 SyntaxFactory.IdentifierName("Regex"),
@@ -81,16 +102,14 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
                                 SyntaxFactory.IdentifierName("Regex"),
                                 SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(constructorArgs)),
                                 null))))))
-            .WithModifiers(SyntaxFactory.TokenList(
-                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)))
+            .WithModifiers(modifiers)
             .NormalizeWhitespace()
-            .WithLeadingTrivia(containingMethod.GetLeadingTrivia())
+            .WithLeadingTrivia(containingMember.GetLeadingTrivia())
             .WithTrailingTrivia(eol, eol);
 
-        // Replace invocation: _regex.IsMatch(input [, remaining])
-        var instanceArgs = new[] { SyntaxFactory.Argument(inputArg.Expression) }
-            .Concat(remainingArgs.Select(a => SyntaxFactory.Argument(a.Expression)));
+        // Replace invocation: _regex.IsMatch(input [, remaining]) — preserve original input arg
+        var instanceArgs = new[] { inputArg.WithNameColon(null) }
+            .Concat(instanceExtraArgs);
 
         var newInvocation = SyntaxFactory.InvocationExpression(
             SyntaxFactory.MemberAccessExpression(
@@ -100,7 +119,7 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
             SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(instanceArgs)));
 
         editor.ReplaceNode(invocation, newInvocation);
-        editor.InsertBefore(containingMethod, fieldDeclaration);
+        editor.InsertBefore(containingMember, fieldDeclaration);
 
         return editor.GetChangedDocument();
     }
