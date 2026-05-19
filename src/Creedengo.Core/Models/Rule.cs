@@ -31,6 +31,7 @@ internal static class Rule
         public const string GCI95_UseIsOperatorInsteadOfAsOperator = "GCI95";
         public const string GCIXX_UnnecessaryAssignment = "GCIXX";
         public const string GCI96_UseEventArgsDotEmpty = "GCI96";
+        public const string GCI2508_RemoveUselessToStringCall = "GCI2508";
     }
 
     /// <summary>Creates a diagnostic descriptor.</summary>
