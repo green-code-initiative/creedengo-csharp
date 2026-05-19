@@ -37,24 +37,35 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
         if (node is not InvocationExpressionSyntax invocation) return document;
         if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess) return document;
 
-        // Detect EOL style from existing document
-        var eolTrivia = editor.OriginalRoot.DescendantTrivia()
-            .FirstOrDefault(t => t.IsKind(SyntaxKind.EndOfLineTrivia));
-        var eol = eolTrivia != default ? eolTrivia : SyntaxFactory.ElasticLineFeed;
+        var regexTypeSymbol = editor.SemanticModel.Compilation.GetTypeByMetadataName("System.Text.RegularExpressions.Regex");
+        if (regexTypeSymbol is null) return document;
 
         var methodName = memberAccess.Name.Identifier.Text;
         var args = invocation.ArgumentList.Arguments;
         if (args.Count < 2) return document;
 
-        // First arg is input, second is pattern for static Regex methods
+        // First arg is input, second is pattern for static Regex methods.
         var inputArg = args[0];
         var patternArg = args[1];
 
-        // Only offer fix when pattern is a constant expression (literal, const field, etc.)
+        // Only offer the fix when the pattern is a constant expression: anything else would land
+        // in a field initializer that cannot reference locals/parameters and produce uncompilable code.
         var patternConstant = editor.SemanticModel.GetConstantValue(patternArg.Expression, token);
         if (!patternConstant.HasValue) return document;
 
-        // Build remaining args (skip input and pattern, e.g. RegexOptions, TimeSpan)
+        var containingType = invocation.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+        if (containingType is null) return document;
+
+        var containingMember = invocation.FirstAncestorOrSelf<MemberDeclarationSyntax>(
+            n => n is MethodDeclarationSyntax or PropertyDeclarationSyntax or ConstructorDeclarationSyntax
+              or EventDeclarationSyntax or IndexerDeclarationSyntax or OperatorDeclarationSyntax
+              or ConversionOperatorDeclarationSyntax or DestructorDeclarationSyntax);
+        if (containingMember is null) return document;
+
+        // A static lambda / static local function inside an instance member still requires a static field.
+        bool isStaticContext = IsStaticContext(invocation, containingMember);
+
+        // Split remaining args between constructor (RegexOptions / TimeSpan) and instance call (others).
         var constructorExtraArgs = new SyntaxList<ArgumentSyntax>();
         var instanceExtraArgs = new SyntaxList<ArgumentSyntax>();
         for (int i = 2; i < args.Count; i++)
@@ -66,61 +77,91 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodFixer : CodeFixProvider
                 instanceExtraArgs = instanceExtraArgs.Add(args[i].WithNameColon(null));
         }
 
-        // Find containing member (method, property, constructor, etc.) and containing type
-        var containingMember = invocation.FirstAncestorOrSelf<MemberDeclarationSyntax>(
-            n => n is MethodDeclarationSyntax or PropertyDeclarationSyntax or ConstructorDeclarationSyntax or EventDeclarationSyntax);
-        if (containingMember is null) return document;
+        string fieldName = GenerateUniqueFieldName(containingType);
 
-        var containingType = containingMember.FirstAncestorOrSelf<TypeDeclarationSyntax>();
-        if (containingType is null) return document;
+        // Build a fully-qualified Regex type expression annotated so Simplifier reduces it to `Regex`
+        // when a using is in scope and so an import is added otherwise. Each call returns a fresh node
+        // (a syntax node cannot have two parents).
+        SyntaxNode RegexTypeExpression() => editor.Generator
+            .TypeExpression(regexTypeSymbol)
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation);
 
-        // Determine if the containing member is static
-        bool isStaticContext = containingMember.Modifiers.Any(SyntaxKind.StaticKeyword);
+        var constructorArgs = new SyntaxList<ArgumentSyntax>()
+            .Add(SyntaxFactory.Argument(patternArg.Expression))
+            .AddRange(constructorExtraArgs);
 
-        // Build constructor arguments: pattern [, options] — preserve original expressions
-        var constructorArgs = new[] { SyntaxFactory.Argument(patternArg.Expression) }
-            .Concat(constructorExtraArgs.Select(a => a));
+        var objectCreation = SyntaxFactory.ObjectCreationExpression(
+            (TypeSyntax)RegexTypeExpression(),
+            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(constructorArgs)),
+            initializer: null);
 
-        // Build field modifiers: private [static] readonly
         var modifiers = isStaticContext
-            ? SyntaxFactory.TokenList(
-                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                SyntaxFactory.Token(SyntaxKind.StaticKeyword),
-                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword))
-            : SyntaxFactory.TokenList(
-                SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-                SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
+            ? DeclarationModifiers.Static | DeclarationModifiers.ReadOnly
+            : DeclarationModifiers.ReadOnly;
 
-        // Create field: private [static] readonly Regex _regex = new Regex(pattern);
-        var fieldDeclaration = SyntaxFactory.FieldDeclaration(
-            SyntaxFactory.VariableDeclaration(
-                SyntaxFactory.IdentifierName("Regex"),
-                SyntaxFactory.SingletonSeparatedList(
-                    SyntaxFactory.VariableDeclarator("_regex")
-                        .WithInitializer(SyntaxFactory.EqualsValueClause(
-                            SyntaxFactory.ObjectCreationExpression(
-                                SyntaxFactory.IdentifierName("Regex"),
-                                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(constructorArgs)),
-                                null))))))
-            .WithModifiers(modifiers)
-            .NormalizeWhitespace()
-            .WithLeadingTrivia(containingMember.GetLeadingTrivia())
-            .WithTrailingTrivia(eol, eol);
+        var fieldDeclaration = ((FieldDeclarationSyntax)editor.Generator.FieldDeclaration(
+                fieldName,
+                RegexTypeExpression(),
+                Accessibility.Private,
+                modifiers,
+                objectCreation))
+            .WithAdditionalAnnotations(Formatter.Annotation);
 
-        // Replace invocation: _regex.IsMatch(input [, remaining]) — preserve original input arg
-        var instanceArgs = new[] { inputArg.WithNameColon(null) }
-            .Concat(instanceExtraArgs);
+        // Build the instance call: <fieldName>.<methodName>(input [, instanceExtras]).
+        var instanceArgs = new SyntaxList<ArgumentSyntax>()
+            .Add(inputArg.WithNameColon(null))
+            .AddRange(instanceExtraArgs);
 
         var newInvocation = SyntaxFactory.InvocationExpression(
             SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                SyntaxFactory.IdentifierName("_regex"),
+                SyntaxFactory.IdentifierName(fieldName),
                 SyntaxFactory.IdentifierName(methodName)),
-            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(instanceArgs)));
+            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(instanceArgs)))
+            .WithTriviaFrom(invocation);
 
         editor.ReplaceNode(invocation, newInvocation);
         editor.InsertBefore(containingMember, fieldDeclaration);
 
         return editor.GetChangedDocument();
+    }
+
+    private static bool IsStaticContext(SyntaxNode invocation, MemberDeclarationSyntax containingMember)
+    {
+        foreach (var ancestor in invocation.Ancestors())
+        {
+            if (ancestor == containingMember) break;
+            if (ancestor is LocalFunctionStatementSyntax lf && lf.Modifiers.Any(SyntaxKind.StaticKeyword)) return true;
+            if (ancestor is AnonymousFunctionExpressionSyntax af && af.Modifiers.Any(SyntaxKind.StaticKeyword)) return true;
+        }
+        return containingMember.Modifiers.Any(SyntaxKind.StaticKeyword);
+    }
+
+    private static string GenerateUniqueFieldName(TypeDeclarationSyntax containingType)
+    {
+        var existing = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var member in containingType.Members)
+        {
+            switch (member)
+            {
+                case FieldDeclarationSyntax field:
+                    foreach (var v in field.Declaration.Variables) existing.Add(v.Identifier.ValueText);
+                    break;
+                case EventFieldDeclarationSyntax eventField:
+                    foreach (var v in eventField.Declaration.Variables) existing.Add(v.Identifier.ValueText);
+                    break;
+                case PropertyDeclarationSyntax prop: existing.Add(prop.Identifier.ValueText); break;
+                case EventDeclarationSyntax ev: existing.Add(ev.Identifier.ValueText); break;
+                case MethodDeclarationSyntax method: existing.Add(method.Identifier.ValueText); break;
+            }
+        }
+
+        const string baseName = "_regex";
+        if (!existing.Contains(baseName)) return baseName;
+        for (int i = 1; ; i++)
+        {
+            var candidate = baseName + i;
+            if (!existing.Contains(candidate)) return candidate;
+        }
     }
 }

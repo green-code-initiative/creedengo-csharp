@@ -235,4 +235,77 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
             }
         }
         """);
+
+    [TestMethod]
+    public Task FullyQualifiedStaticRegexWithoutUsingShouldReportAndFixAsync() => VerifyAsync("""
+        public class Test
+        {
+            public void Run()
+            {
+                bool isMatch = [|System.Text.RegularExpressions.Regex.IsMatch("abc", @"\w")|];
+            }
+        }
+        """, """
+        using System.Text.RegularExpressions;
+
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w");
+
+            public void Run()
+            {
+                bool isMatch = _regex.IsMatch("abc");
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task StaticRegexInStaticLocalFunctionShouldUseStaticFieldAsync() => VerifyAsync("""
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            public void Run()
+            {
+                static bool Check() => [|Regex.IsMatch("abc", @"\w")|];
+                _ = Check();
+            }
+        }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private static readonly Regex _regex = new Regex(@"\w");
+
+            public void Run()
+            {
+                static bool Check() => _regex.IsMatch("abc");
+                _ = Check();
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task StaticRegexWhenRegexFieldAlreadyExistsShouldUseUniqueNameAsync() => VerifyAsync("""
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\d");
+            public void Run()
+            {
+                bool isMatch = [|Regex.IsMatch("abc", @"\w")|];
+            }
+        }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\d");
+            private readonly Regex _regex1 = new Regex(@"\w");
+
+            public void Run()
+            {
+                bool isMatch = _regex1.IsMatch("abc");
+            }
+        }
+        """);
 }

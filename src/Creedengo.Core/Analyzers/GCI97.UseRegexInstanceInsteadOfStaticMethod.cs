@@ -33,21 +33,25 @@ public sealed class UseRegexInstanceInsteadOfStaticMethod : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterOperationAction(static context => AnalyzeInvocation(context), Invocation);
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            var regexType = startContext.Compilation.GetTypeByMetadataName("System.Text.RegularExpressions.Regex");
+            if (regexType is null) return;
+
+            startContext.RegisterOperationAction(
+                operationContext => AnalyzeInvocation(operationContext, regexType),
+                Invocation);
+        });
     }
 
-    private static void AnalyzeInvocation(OperationAnalysisContext context)
+    private static void AnalyzeInvocation(OperationAnalysisContext context, INamedTypeSymbol regexType)
     {
         if (context.Operation is not IInvocationOperation operation) return;
 
         var method = operation.TargetMethod;
-        if (!method.IsStatic) return;
-
-        var regexType = context.Compilation.GetTypeByMetadataName("System.Text.RegularExpressions.Regex");
-        if (regexType is null) return;
-
-        if (!SymbolEqualityComparer.Default.Equals(method.ContainingType, regexType)) return;
         if (!StaticRegexMethods.Contains(method.Name)) return;
+        if (!method.IsStatic) return;
+        if (!SymbolEqualityComparer.Default.Equals(method.ContainingType, regexType)) return;
 
         context.ReportDiagnostic(Diagnostic.Create(Descriptor, operation.Syntax.GetLocation()));
     }
