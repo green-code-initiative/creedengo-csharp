@@ -63,6 +63,7 @@ Creedengo C# can use [SonarScanner for .Net](https://docs.sonarsource.com/sonarq
 |[GCI92](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI92/csharp/GCI92.asciidoc)|Use `Length` to test empty `strings`|⚠️|✔️|
 |[GCI93](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI93/csharp/GCI93.asciidoc)|Return `Task` directly|ℹ️|✔️|
 |[GCI95](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI95/csharp/GCI95.asciidoc)|Use `is` operator instead of `as` operator|ℹ️|✔️|
+|[GCI97](https://github.com/green-code-initiative/creedengo-rules-specifications/blob/main/src/main/rules/GCI97/csharp/GCI97.asciidoc)|Use `Regex` instance instead of static method|⚠️|✔️|
 
 🌿 Customized Roslyn Rules
 -------------------
