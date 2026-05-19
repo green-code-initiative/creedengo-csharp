@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 
 **/Container
 **/Publish
+
+# Claude Code local configuration
+.claude/
