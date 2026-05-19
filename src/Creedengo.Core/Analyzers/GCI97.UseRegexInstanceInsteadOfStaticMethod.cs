@@ -10,10 +10,10 @@ public sealed class UseRegexInstanceInsteadOfStaticMethod : DiagnosticAnalyzer
     public static DiagnosticDescriptor Descriptor { get; } = Rule.CreateDescriptor(
         id: Rule.Ids.GCI97_UseRegexInstanceInsteadOfStaticMethod,
         title: "Use Regex instance instead of static method",
-        message: "Use a Regex instance instead of a static method to avoid recompiling the pattern each time",
+        message: "Use a Regex instance instead of a static method to avoid repeated pattern parsing overhead",
         category: Rule.Categories.Performance,
         severity: DiagnosticSeverity.Warning,
-        description: "Static Regex methods recompile the pattern on each call. Using a cached Regex instance avoids this overhead and reduces CPU and energy consumption.");
+        description: "Static Regex methods rely on a limited internal cache and incur pattern parsing overhead. Using an explicitly cached Regex instance makes caching deterministic and reduces CPU and energy consumption.");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;

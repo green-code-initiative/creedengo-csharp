@@ -45,7 +45,7 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
         """);
 
     [TestMethod]
-    public Task StaticRegexMatchShouldReportAsync() => VerifyAsync("""
+    public Task StaticRegexMatchShouldReportAndFixAsync() => VerifyAsync("""
         using System.Text.RegularExpressions;
         public class Test
         {
@@ -54,10 +54,21 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
                 var m = [|Regex.Match("abc", @"\w")|];
             }
         }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w");
+
+            public void Run()
+            {
+                var m = _regex.Match("abc");
+            }
+        }
         """);
 
     [TestMethod]
-    public Task StaticRegexReplaceShouldReportAsync() => VerifyAsync("""
+    public Task StaticRegexReplaceShouldReportAndFixAsync() => VerifyAsync("""
         using System.Text.RegularExpressions;
         public class Test
         {
@@ -66,10 +77,21 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
                 string r = [|Regex.Replace("abc", @"\w", "x")|];
             }
         }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w");
+
+            public void Run()
+            {
+                string r = _regex.Replace("abc", "x");
+            }
+        }
         """);
 
     [TestMethod]
-    public Task StaticRegexSplitShouldReportAsync() => VerifyAsync("""
+    public Task StaticRegexSplitShouldReportAndFixAsync() => VerifyAsync("""
         using System.Text.RegularExpressions;
         public class Test
         {
@@ -78,16 +100,38 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
                 string[] r = [|Regex.Split("abc", @"\w")|];
             }
         }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w");
+
+            public void Run()
+            {
+                string[] r = _regex.Split("abc");
+            }
+        }
         """);
 
     [TestMethod]
-    public Task StaticRegexMatchesShouldReportAsync() => VerifyAsync("""
+    public Task StaticRegexMatchesShouldReportAndFixAsync() => VerifyAsync("""
         using System.Text.RegularExpressions;
         public class Test
         {
             public void Run()
             {
                 var r = [|Regex.Matches("abc", @"\w")|];
+            }
+        }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w");
+
+            public void Run()
+            {
+                var r = _regex.Matches("abc");
             }
         }
         """);
@@ -140,6 +184,29 @@ public sealed class UseRegexInstanceInsteadOfStaticMethodTests
             public void Run(string pattern)
             {
                 bool isMatch = [|Regex.IsMatch("abc", pattern)|];
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task StaticRegexWithOptionsShouldReportAndFixAsync() => VerifyAsync("""
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            public void Run()
+            {
+                bool isMatch = [|Regex.IsMatch("abc", @"\w", RegexOptions.IgnoreCase)|];
+            }
+        }
+        """, """
+        using System.Text.RegularExpressions;
+        public class Test
+        {
+            private readonly Regex _regex = new Regex(@"\w", RegexOptions.IgnoreCase);
+
+            public void Run()
+            {
+                bool isMatch = _regex.IsMatch("abc");
             }
         }
         """);
