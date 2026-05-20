@@ -32,6 +32,7 @@ internal static class Rule
         public const string GCIXX_UnnecessaryAssignment = "GCIXX";
         public const string GCI96_UseEventArgsDotEmpty = "GCI96";
         public const string GCI2333_RemoveRedundantToCharArrayCall = "GCI2333";
+        public const string GCI2334_TrueForAllInsteadOfAll = "GCI2334";
         public const string GCI98_UseThenByInsteadOfOrderBy = "GCI98";
     }
 
