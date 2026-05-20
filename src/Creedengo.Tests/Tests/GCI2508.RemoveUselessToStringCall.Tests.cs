@@ -3,7 +3,7 @@
 [TestClass]
 public sealed class RemoveUselessToStringCallTests
 {
-    private static readonly AnalyzerDlg VerifyAsync = TestRunner.VerifyAsync<RemoveUselessToStringCall>;
+    private static readonly CodeFixerDlg VerifyAsync = TestRunner.VerifyAsync<RemoveUselessToStringCall, RemoveUselessToStringCallFixer>;
 
     [TestMethod]
     public Task EmptyCodeAsync() => VerifyAsync("");
@@ -19,6 +19,16 @@ public sealed class RemoveUselessToStringCallTests
                 Console.Write([|str.ToString()|]);
             }
         }
+        """, """
+        using System;
+        public static class Program
+        {
+            public static void Main()
+            {
+                string str = "a";
+                Console.Write(str);
+            }
+        }
         """);
 
     [TestMethod]
@@ -30,6 +40,16 @@ public sealed class RemoveUselessToStringCallTests
             {
                 string str = "a";
                 [|str.ToString()|];
+            }
+        }
+        """, """
+        using System;
+        public static class Program
+        {
+            public static void Main()
+            {
+                string str = "a";
+                
             }
         }
         """);
@@ -55,6 +75,16 @@ public sealed class RemoveUselessToStringCallTests
             {
                 string str = "a";
                 _ = [|str.ToString()|];
+            }
+        }
+        """, """
+        using System;
+        public static class Program
+        {
+            public static void Main()
+            {
+                string str = "a";
+                _ = str;
             }
         }
         """);
