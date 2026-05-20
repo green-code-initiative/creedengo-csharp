@@ -32,6 +32,7 @@
   </Folder>
   <Project Path="src/Creedengo.Core/Creedengo.Core.csproj" />
   <Project Path="src/Creedengo.Package/Creedengo.Package.csproj" />
+  <Project Path="src/Creedengo.Sandbox/Creedengo.Sandbox.csproj" />
   <Project Path="src/Creedengo.Tests/Creedengo.Tests.csproj" />
   <Project Path="src/Creedengo.Tool/Creedengo.Tool.csproj" />
 </Solution>
