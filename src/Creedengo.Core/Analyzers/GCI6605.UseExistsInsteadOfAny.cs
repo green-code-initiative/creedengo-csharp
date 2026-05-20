@@ -13,7 +13,7 @@ public sealed class UseExistsInsteadOfAny : DiagnosticAnalyzer
         message: "Use 'Exists' instead of 'Any' for improved performance on List<T>",
         category: Rule.Categories.Performance,
         severity: DiagnosticSeverity.Warning,
-        description: "List<T>.Exists(predicate) is more performant than the LINQ extension method Enumerable.Any(predicate) because it avoids delegate allocation and virtual dispatch overhead.");
+        description: "List<T>.Exists(predicate) is more performant than the LINQ extension method Enumerable.Any(predicate) for List<T> because it avoids enumerator allocation and interface dispatch overhead.");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;

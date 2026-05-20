@@ -19,24 +19,24 @@ public sealed class UseExistsInsteadOfAnyFixer : CodeFixProvider
     {
         if (context.Diagnostics.FirstOrDefault() is not { } diagnostic ||
             await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) is not { } root ||
-            root.FindNode(context.Span, getInnermostNodeForTie: true) is not IdentifierNameSyntax { Identifier.Text: "Any" } anyIdentifier)
+            root.FindNode(context.Span, getInnermostNodeForTie: true) is not SimpleNameSyntax { Identifier.Text: "Any" } anyName)
         {
             return;
         }
 
         context.RegisterCodeFix(CodeAction.Create(
             "Use Exists instead of Any",
-            ct => ReplaceAnyWithExistsAsync(context.Document, anyIdentifier),
+            ct => ReplaceAnyWithExistsAsync(context.Document, anyName),
             equivalenceKey: "Use Exists instead of Any"),
             diagnostic);
     }
 
-    private static async Task<Document> ReplaceAnyWithExistsAsync(Document document, IdentifierNameSyntax anyIdentifier)
+    private static async Task<Document> ReplaceAnyWithExistsAsync(Document document, SimpleNameSyntax anyName)
     {
         var existsIdentifier = SyntaxFactory.IdentifierName("Exists")
-            .WithLeadingTrivia(anyIdentifier.GetLeadingTrivia())
-            .WithTrailingTrivia(anyIdentifier.GetTrailingTrivia());
+            .WithLeadingTrivia(anyName.GetLeadingTrivia())
+            .WithTrailingTrivia(anyName.GetTrailingTrivia());
 
-        return await document.WithUpdatedRoot(anyIdentifier, existsIdentifier).ConfigureAwait(false);
+        return await document.WithUpdatedRoot(anyName, existsIdentifier).ConfigureAwait(false);
     }
 }

@@ -128,6 +128,33 @@ public sealed class UseExistsInsteadOfAnyTests
         }
         """);
 
+    [TestMethod]
+    public Task AnyWithExplicitTypeArgumentAsync() => VerifyAsync("""
+        using System;
+        using System.Collections.Generic;
+        using System.Linq;
+        public static class Test
+        {
+            public static bool Run()
+            {
+                var list = new List<int> { 1, 2, 3 };
+                return list.[|Any<int>|](x => x > 1);
+            }
+        }
+        """, """
+        using System;
+        using System.Collections.Generic;
+        using System.Linq;
+        public static class Test
+        {
+            public static bool Run()
+            {
+                var list = new List<int> { 1, 2, 3 };
+                return list.Exists(x => x > 1);
+            }
+        }
+        """);
+
     #endregion
 
     #region Negative cases (should NOT trigger diagnostic)
