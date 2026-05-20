@@ -34,6 +34,7 @@ internal static class Rule
         public const string GCI2508_RemoveUselessToStringCall = "GCI2508";
         public const string GCI2333_RemoveRedundantToCharArrayCall = "GCI2333";
         public const string GCI98_UseThenByInsteadOfOrderBy = "GCI98";
+        public const string GCI6605_UseExistsInsteadOfAny = "GCI6605";
     }
 
     /// <summary>Creates a diagnostic descriptor.</summary>
