@@ -33,10 +33,7 @@ public sealed class UseExistsInsteadOfAnyFixer : CodeFixProvider
 
     private static async Task<Document> ReplaceAnyWithExistsAsync(Document document, SimpleNameSyntax anyName)
     {
-        var existsIdentifier = SyntaxFactory.IdentifierName("Exists")
-            .WithLeadingTrivia(anyName.GetLeadingTrivia())
-            .WithTrailingTrivia(anyName.GetTrailingTrivia());
-
+        var existsIdentifier = SyntaxFactory.IdentifierName("Exists").WithTriviaFrom(anyName);
         return await document.WithUpdatedRoot(anyName, existsIdentifier).ConfigureAwait(false);
     }
 }

@@ -1,6 +1,6 @@
 namespace Creedengo.Core.Analyzers;
 
-/// <summary>GC2333: Remove redundant 'ToCharArray' call.</summary>
+/// <summary>GCI2333: Remove redundant 'ToCharArray' call.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RemoveRedundantToCharArrayCall : DiagnosticAnalyzer
 {
@@ -25,7 +25,7 @@ public sealed class RemoveRedundantToCharArrayCall : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(static context => AnalyzeLoopNode(context), SyntaxKinds);
+        context.RegisterSyntaxNodeAction(AnalyzeLoopNode, SyntaxKinds);
     }
 
     private static void AnalyzeLoopNode(SyntaxNodeAnalysisContext context)

@@ -26,10 +26,25 @@ public sealed class UseThenByInsteadOfOrderBy : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeNode(context), InvocationExpressions);
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            var enumerableType = startContext.Compilation.GetTypeByMetadataName("System.Linq.Enumerable");
+            var queryableType = startContext.Compilation.GetTypeByMetadataName("System.Linq.Queryable");
+            if (enumerableType is null && queryableType is null) return;
+
+            var expressionType = startContext.Compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1");
+
+            startContext.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeNode(nodeContext, enumerableType, queryableType, expressionType),
+                InvocationExpressions);
+        });
     }
 
-    private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeNode(
+        SyntaxNodeAnalysisContext context,
+        INamedTypeSymbol? enumerableType,
+        INamedTypeSymbol? queryableType,
+        INamedTypeSymbol? expressionType)
     {
         var invocation = (InvocationExpressionSyntax)context.Node;
 
@@ -46,6 +61,37 @@ public sealed class UseThenByInsteadOfOrderBy : DiagnosticAnalyzer
             })
             return;
 
+        if (context.SemanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method ||
+            !IsLinqSortMethod(method, enumerableType, queryableType))
+        {
+            return;
+        }
+
+        if (IsInsideExpressionTree(context.SemanticModel, invocation, expressionType))
+            return;
+
         context.ReportDiagnostic(Diagnostic.Create(Descriptor, memberAccess.Name.GetLocation()));
+    }
+
+    private static bool IsLinqSortMethod(IMethodSymbol method, INamedTypeSymbol? enumerableType, INamedTypeSymbol? queryableType) =>
+        (enumerableType is not null && SymbolEqualityComparer.Default.Equals(method.ContainingType, enumerableType)) ||
+        (queryableType is not null && SymbolEqualityComparer.Default.Equals(method.ContainingType, queryableType));
+
+    private static bool IsInsideExpressionTree(SemanticModel semanticModel, SyntaxNode node, INamedTypeSymbol? expressionType)
+    {
+        if (expressionType is null) return false;
+
+        for (var current = node.Parent; current is not null; current = current.Parent)
+        {
+            if (current is not LambdaExpressionSyntax and not AnonymousMethodExpressionSyntax)
+                continue;
+
+            if (semanticModel.GetTypeInfo(current).ConvertedType is INamedTypeSymbol namedType &&
+                SymbolEqualityComparer.Default.Equals(namedType.OriginalDefinition, expressionType))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

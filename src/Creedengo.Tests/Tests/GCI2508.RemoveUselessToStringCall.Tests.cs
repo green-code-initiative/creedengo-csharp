@@ -62,7 +62,68 @@ public sealed class RemoveUselessToStringCallTests
             public static void Main()
             {
                 string str = "a";
-                string str2 = str.ToString();
+                string str2 = [|str.ToString()|];
+            }
+        }
+        """, """
+        using System;
+        public static class Program
+        {
+            public static void Main()
+            {
+                string str = "a";
+                string str2 = str;
+            }
+        }
+        """);
+
+    [TestMethod]
+    public Task FieldInitializerAsync() => VerifyAsync("""
+        public static class Program
+        {
+            private const string Source = "a";
+            private static readonly string Field = [|Source.ToString()|];
+        }
+        """, """
+        public static class Program
+        {
+            private const string Source = "a";
+            private static readonly string Field = Source;
+        }
+        """);
+
+    [TestMethod]
+    public Task ExpressionBodiedPropertyAsync() => VerifyAsync("""
+        public class Program
+        {
+            private readonly string _str = "a";
+            public string Value => [|_str.ToString()|];
+        }
+        """, """
+        public class Program
+        {
+            private readonly string _str = "a";
+            public string Value => _str;
+        }
+        """);
+
+    [TestMethod]
+    public Task ReturnStatementAsync() => VerifyAsync("""
+        public static class Program
+        {
+            public static string Get()
+            {
+                string str = "a";
+                return [|str.ToString()|];
+            }
+        }
+        """, """
+        public static class Program
+        {
+            public static string Get()
+            {
+                string str = "a";
+                return str;
             }
         }
         """);
