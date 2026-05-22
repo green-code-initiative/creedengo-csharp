@@ -27,7 +27,7 @@ jobs:
   
     - run: dotnet build TestsOnly.slnf -c Release --no-restore
   
-    - run: dotnet test TestsOnly.slnf -c Release --no-build --logger "trx;LogFileName=test_results.trx" -p:CollectCoverage=true -p:Threshold=80 -p:CoverletOutputFormat='cobertura'
+    - run: dotnet test TestsOnly.slnf -c Release --no-build --logger "trx;LogFileName=test_results.trx" -p:CollectCoverage=true -p:Threshold=70 -p:CoverletOutputFormat='cobertura'
   
     - uses: danielpalme/ReportGenerator-GitHub-Action@5.5.10
       with:

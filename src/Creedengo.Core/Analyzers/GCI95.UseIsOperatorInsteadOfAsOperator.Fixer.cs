@@ -1,8 +1,6 @@
 namespace Creedengo.Core.Analyzers;
 
-/// <summary>
-/// GCI95 fixer: Use Length to test empty strings.
-/// </summary>
+/// <summary>GCI95 fixer: Use 'is' operator instead of 'as' operator.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseIsOperatorInsteadOfAsOperatorFixer)), Shared]
 public sealed class UseIsOperatorInsteadOfAsOperatorFixer : CodeFixProvider
 {
@@ -76,9 +74,12 @@ public sealed class UseIsOperatorInsteadOfAsOperatorFixer : CodeFixProvider
         var expression = asExpressionSyntax.Left;
         var type = asExpressionSyntax.Right;
 
+        // Build `x is T` preserving spaces around the keyword; outer trivia inherits from the
+        // original `x as T != null` expression so leading indentation and trailing space stay intact.
         var isExpression = SyntaxFactory.BinaryExpression(
             SyntaxKind.IsExpression,
-            expression.WithoutTrivia(),
+            expression.WithoutTrailingTrivia().WithTrailingTrivia(SyntaxFactory.Space),
+            SyntaxFactory.Token(SyntaxKind.IsKeyword).WithTrailingTrivia(SyntaxFactory.Space),
             type.WithoutTrivia()
         ).WithTriviaFrom(binaryExpression);
 

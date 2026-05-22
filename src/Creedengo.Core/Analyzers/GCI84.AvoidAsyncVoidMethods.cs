@@ -24,7 +24,7 @@ public sealed class AvoidAsyncVoidMethods : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeMethod(context), Declarations);
+        context.RegisterSyntaxNodeAction(AnalyzeMethod, Declarations);
     }
 
     private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)

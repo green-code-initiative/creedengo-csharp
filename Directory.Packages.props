@@ -1,37 +1,35 @@
 <Project>
-	<PropertyGroup>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-	</PropertyGroup>
-	<ItemGroup>
-		<!-- Non Microsoft -->
-		<PackageVersion Include="coverlet.collector" Version="10.0.0" PrivateAssets="all" ExcludeAssets="compile; runtime" />
-		<PackageVersion Include="coverlet.msbuild" Version="10.0.0" PrivateAssets="all" ExcludeAssets="compile; runtime" />
-		<PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
-		<PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.15.0" />
-		<PackageVersion Include="Spectre.Console" Version="0.55.2" />
-		<PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
-		
-		<!-- Pinned to support from .Net 8 -->
-		<PackageVersion Include="Microsoft.Build" Version="17.11.48" />
-		<PackageVersion Include="Microsoft.Build.Framework" Version="17.11.48" />
-		<PackageVersion Include="Microsoft.CodeAnalysis" Version="4.8.0" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.8.0" />
-
-		<!-- Microsoft -->
-		<PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.2" />
-		<PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.3" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="1.1.2" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.3" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="1.1.2" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.203" />
-		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
-		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.203" />
-		<PackageVersion Include="MSTest.TestAdapter" Version="4.2.2" />
-		<PackageVersion Include="MSTest.TestFramework" Version="4.2.2" />
-	</ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Non Microsoft -->
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" PrivateAssets="all" ExcludeAssets="compile; runtime" />
+    <PackageVersion Include="coverlet.msbuild" Version="10.0.1" PrivateAssets="all" ExcludeAssets="compile; runtime" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
+    <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.15.0" />
+    <PackageVersion Include="Spectre.Console" Version="0.55.2" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
+    <!-- Pinned to support from .Net 8 -->
+    <PackageVersion Include="Microsoft.Build" Version="17.11.48" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="17.11.48" />
+    <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.8.0" />
+    <!-- Microsoft -->
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.2" />
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.3" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="1.1.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.3" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="1.1.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.300" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="4.2.3" />
+    <PackageVersion Include="MSTest.TestFramework" Version="4.2.3" />
+  </ItemGroup>
 </Project>

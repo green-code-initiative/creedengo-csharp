@@ -24,17 +24,24 @@ public sealed class GCCollectShouldNotBeCalled : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeMethod(context), SyntaxKinds);
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            var gcType = startContext.Compilation.GetTypeByMetadataName(typeof(GC).FullName);
+            if (gcType is null) return; // No System.GC reference; nothing to flag.
+
+            startContext.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeMethod(nodeContext, gcType),
+                SyntaxKinds);
+        });
     }
 
-    private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeMethod(SyntaxNodeAnalysisContext context, INamedTypeSymbol gcType)
     {
         var invocationExpression = (InvocationExpressionSyntax)context.Node;
 
         if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol methodSymbol ||
             methodSymbol.Name != nameof(GC.Collect) ||
-            !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType,
-                context.SemanticModel.Compilation.GetTypeByMetadataName(typeof(GC).FullName)))
+            !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, gcType))
         {
             return;
         }

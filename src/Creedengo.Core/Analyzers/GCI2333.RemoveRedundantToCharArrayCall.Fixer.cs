@@ -1,6 +1,6 @@
 namespace Creedengo.Core.Analyzers;
 
-/// <summary>GC2333: Remove redundant 'ToCharArray' call.</summary>
+/// <summary>GCI2333: Remove redundant 'ToCharArray' call.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(RemoveRedundantToCharArrayCallFixer)), Shared]
 public sealed class RemoveRedundantToCharArrayCallFixer : CodeFixProvider
 {

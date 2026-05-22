@@ -25,8 +25,8 @@ public sealed class UseWhereBeforeOrderBy : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeMethodSyntax(context), InvocationExpressions);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeQuerySyntax(context), QueryExpressions);
+        context.RegisterSyntaxNodeAction(AnalyzeMethodSyntax, InvocationExpressions);
+        context.RegisterSyntaxNodeAction(AnalyzeQuerySyntax, QueryExpressions);
     }
 
     private static void AnalyzeMethodSyntax(SyntaxNodeAnalysisContext context)

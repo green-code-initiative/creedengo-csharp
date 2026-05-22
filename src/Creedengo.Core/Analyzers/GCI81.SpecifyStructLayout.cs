@@ -24,7 +24,7 @@ public sealed class SpecifyStructLayout : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSymbolAction(static context => Analyze(context), SymbolKinds);
+        context.RegisterSymbolAction(Analyze, SymbolKinds);
     }
 
     private static void Analyze(SymbolAnalysisContext context)

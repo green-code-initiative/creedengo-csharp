@@ -25,8 +25,8 @@ public sealed class UseLengthToTestEmptyStrings : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeComparison(context), EqualsExpression);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeComparison(context), NotEqualsExpression);
+        context.RegisterSyntaxNodeAction(AnalyzeComparison, EqualsExpression);
+        context.RegisterSyntaxNodeAction(AnalyzeComparison, NotEqualsExpression);
     }
 
     private static void AnalyzeComparison(SyntaxNodeAnalysisContext context)

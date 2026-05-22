@@ -30,8 +30,22 @@ public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(static context => AnalyzeLoopNode(context), SyntaxKinds);
-        context.RegisterOperationAction(static context => AnalyzeForEach(context), Invocations);
+        context.RegisterSyntaxNodeAction(AnalyzeLoopNode, SyntaxKinds);
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            // Resolve the four host types ONCE per compilation. If none of them are present,
+            // there is no way for ForEach analysis to fire — skip registration entirely.
+            var parallelType = startContext.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Parallel");
+            var arrayType = startContext.Compilation.GetTypeByMetadataName("System.Array");
+            var listType = startContext.Compilation.GetTypeByMetadataName("System.Collections.Generic.List`1");
+            var immutableListType = startContext.Compilation.GetTypeByMetadataName("System.Collections.Immutable.ImmutableList`1");
+            if (parallelType is null && arrayType is null && listType is null && immutableListType is null)
+                return;
+
+            startContext.RegisterOperationAction(
+                operationContext => AnalyzeForEach(operationContext, parallelType, arrayType, listType, immutableListType),
+                Invocations);
+        });
     }
 
     private static void AnalyzeLoopNode(SyntaxNodeAnalysisContext context)
@@ -61,10 +75,15 @@ public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
         }
     }
 
-    private static void AnalyzeForEach(OperationAnalysisContext context)
+    private static void AnalyzeForEach(
+        OperationAnalysisContext context,
+        INamedTypeSymbol? parallelType,
+        INamedTypeSymbol? arrayType,
+        INamedTypeSymbol? listType,
+        INamedTypeSymbol? immutableListType)
     {
         if (context.Operation is not IInvocationOperation { TargetMethod.Name: "ForEach" } operation ||
-            GetBodyDelegateOperation(operation, context.Compilation)?.Value is not IDelegateCreationOperation { Target: { } body })
+            GetBodyDelegateOperation(operation, parallelType, arrayType, listType, immutableListType)?.Value is not IDelegateCreationOperation { Target: { } body })
         {
             return;
         }
@@ -94,22 +113,27 @@ public sealed class DontConcatenateStringsInLoops : DiagnosticAnalyzer
             }
         }
 
-        static IArgumentOperation? GetBodyDelegateOperation(IInvocationOperation operation, Compilation compilation)
+        static IArgumentOperation? GetBodyDelegateOperation(
+            IInvocationOperation operation,
+            INamedTypeSymbol? parallelType,
+            INamedTypeSymbol? arrayType,
+            INamedTypeSymbol? listType,
+            INamedTypeSymbol? immutableListType)
         {
             var symbol = operation.TargetMethod.ContainingType.OriginalDefinition;
             if (operation.TargetMethod.ContainingType.IsStatic) // Parallel.ForEach<T>, the delegate to analyze is always called 'body'
             {
-                if (SymbolEqualityComparer.Default.Equals(symbol, compilation.GetTypeByMetadataName("System.Threading.Tasks.Parallel")))
+                if (parallelType is not null && SymbolEqualityComparer.Default.Equals(symbol, parallelType))
                     return operation.Arguments.FirstOrDefault(a => a.Parameter?.Name == "body");
             }
             else if (operation.TargetMethod.IsStatic) // Array : static void ForEach<T>(T[] array, Action<T> action)
             {
-                if (SymbolEqualityComparer.Default.Equals(symbol, compilation.GetTypeByMetadataName("System.Array")))
+                if (arrayType is not null && SymbolEqualityComparer.Default.Equals(symbol, arrayType))
                     return operation.Arguments[1];
             }
             else if ( // List<T> and ImmutableList<T> : void ForEach(Action<T> action)
-                SymbolEqualityComparer.Default.Equals(symbol, compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")) ||
-                SymbolEqualityComparer.Default.Equals(symbol, compilation.GetTypeByMetadataName("System.Collections.Immutable.ImmutableList`1")))
+                listType is not null && SymbolEqualityComparer.Default.Equals(symbol, listType) ||
+                immutableListType is not null && SymbolEqualityComparer.Default.Equals(symbol, immutableListType))
             {
                 return operation.Arguments[0];
             }

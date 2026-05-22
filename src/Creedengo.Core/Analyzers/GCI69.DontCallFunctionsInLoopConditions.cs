@@ -27,7 +27,7 @@ public sealed class DontCallFunctionsInLoopConditions : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(static context => AnalyzeLoopNode(context), SyntaxKinds);
+        context.RegisterSyntaxNodeAction(AnalyzeLoopNode, SyntaxKinds);
     }
 
     private static void AnalyzeLoopNode(SyntaxNodeAnalysisContext context)

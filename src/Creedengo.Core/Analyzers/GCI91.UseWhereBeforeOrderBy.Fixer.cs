@@ -19,7 +19,7 @@ public sealed class UseWhereBeforeOrderByFixer : CodeFixProvider
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            if (root.FindToken(diagnostic.Location.SourceSpan.Start).Parent is not { } parent)
+            if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } parent)
                 continue;
 
             foreach (var node in parent.AncestorsAndSelf())

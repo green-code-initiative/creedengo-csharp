@@ -22,8 +22,8 @@ public class UnnecessaryAssignment : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeIfStatement(context), SyntaxKind.IfStatement);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeSwitchStatement(context), SyntaxKind.SwitchStatement);
+        context.RegisterSyntaxNodeAction(AnalyzeIfStatement, SyntaxKind.IfStatement);
+        context.RegisterSyntaxNodeAction(AnalyzeSwitchStatement, SyntaxKind.SwitchStatement);
     }
 
     private static void AnalyzeIfStatement(SyntaxNodeAnalysisContext context)

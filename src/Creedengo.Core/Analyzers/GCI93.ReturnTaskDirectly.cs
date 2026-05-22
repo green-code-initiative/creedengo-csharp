@@ -24,7 +24,7 @@ public sealed class ReturnTaskDirectly : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeSyntaxNode(context), MethodDeclarations);
+        context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, MethodDeclarations);
     }
 
     private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
