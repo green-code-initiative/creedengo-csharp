@@ -25,7 +25,7 @@ public sealed class VariableCanBeMadeConstant : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(static context => AnalyzeNode(context), SyntaxKinds);
+        context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKinds);
     }
 
     private static void AnalyzeNode(SyntaxNodeAnalysisContext context)

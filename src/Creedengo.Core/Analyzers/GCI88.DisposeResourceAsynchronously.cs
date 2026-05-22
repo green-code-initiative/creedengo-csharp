@@ -25,38 +25,51 @@ public sealed class DisposeResourceAsynchronously : DiagnosticAnalyzer
     {
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeUsingStatement(context), UsingStatementKinds);
-        context.RegisterSyntaxNodeAction(static context => AnalyzeUsingDeclaration(context), UsingDeclarationKinds);
+        context.RegisterCompilationStartAction(static startContext =>
+        {
+            // No IAsyncDisposable in the compilation (e.g. .NET Framework 4.x) — nothing to flag.
+            var asyncDisposableType = startContext.Compilation.GetTypeByMetadataName("System.IAsyncDisposable");
+            if (asyncDisposableType is null) return;
+
+            startContext.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeUsingStatement(nodeContext, asyncDisposableType),
+                UsingStatementKinds);
+            startContext.RegisterSyntaxNodeAction(
+                nodeContext => AnalyzeUsingDeclaration(nodeContext, asyncDisposableType),
+                UsingDeclarationKinds);
+        });
     }
 
-    private static void AnalyzeUsingStatement(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeUsingStatement(SyntaxNodeAnalysisContext context, INamedTypeSymbol asyncDisposableType)
     {
         var statement = (UsingStatementSyntax)context.Node;
         if (!statement.AwaitKeyword.IsKind(SyntaxKind.AwaitKeyword) &&
             statement.Declaration is { } declaration &&
-            CanBeDisposedAsynchronously(context, declaration.Variables) &&
+            CanBeDisposedAsynchronously(context, declaration.Variables, asyncDisposableType) &&
             IsContainedInAsyncMethod(statement))
         {
             context.ReportDiagnostic(Diagnostic.Create(Descriptor, statement.UsingKeyword.GetLocation()));
         }
     }
 
-    private static void AnalyzeUsingDeclaration(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeUsingDeclaration(SyntaxNodeAnalysisContext context, INamedTypeSymbol asyncDisposableType)
     {
         var statement = (LocalDeclarationStatementSyntax)context.Node;
         if (statement.UsingKeyword.IsKind(SyntaxKind.UsingKeyword) &&
             !statement.AwaitKeyword.IsKind(SyntaxKind.AwaitKeyword) &&
-            CanBeDisposedAsynchronously(context, statement.Declaration.Variables) &&
+            CanBeDisposedAsynchronously(context, statement.Declaration.Variables, asyncDisposableType) &&
             IsContainedInAsyncMethod(statement))
         {
             context.ReportDiagnostic(Diagnostic.Create(Descriptor, statement.UsingKeyword.GetLocation()));
         }
     }
 
-    private static bool CanBeDisposedAsynchronously(SyntaxNodeAnalysisContext context, SeparatedSyntaxList<VariableDeclaratorSyntax> variables) =>
+    private static bool CanBeDisposedAsynchronously(
+        SyntaxNodeAnalysisContext context,
+        SeparatedSyntaxList<VariableDeclaratorSyntax> variables,
+        INamedTypeSymbol asyncDisposableType) =>
         variables.Count == 1 && variables[0].Initializer?.Value is { } expr && // Don't handle multiple variables declarations
         context.SemanticModel.GetTypeInfo(expr, context.CancellationToken).Type is INamedTypeSymbol namedTypeSymbol &&
-        context.Compilation.GetTypeByMetadataName("System.IAsyncDisposable") is { } asyncDisposableType &&
         namedTypeSymbol.AllInterfaces.Contains(asyncDisposableType, SymbolEqualityComparer.Default);
 
     private static bool IsContainedInAsyncMethod(StatementSyntax statement)

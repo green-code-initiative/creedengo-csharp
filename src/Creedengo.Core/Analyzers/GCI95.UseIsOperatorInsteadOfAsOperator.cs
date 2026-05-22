@@ -17,58 +17,33 @@ public sealed class UseIsOperatorInsteadOfAsOperator : DiagnosticAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _supportedDiagnostics;
     private static readonly ImmutableArray<DiagnosticDescriptor> _supportedDiagnostics = ImmutableArray.Create(Descriptor);
 
-    private static readonly ImmutableArray<SyntaxKind> SupportedSyntaxKinds = ImmutableArray.Create(
-        SyntaxKind.IfStatement,
-        SyntaxKind.ConditionalExpression,
-        SyntaxKind.WhileStatement,
-        SyntaxKind.DoStatement,
-        SyntaxKind.ForStatement,
-        SyntaxKind.ReturnStatement);
+    // The pattern we look for is `x as T == null` or `x as T != null` (and their reversed forms).
+    // Subscribing directly to the two BinaryExpression kinds avoids the previous pattern of
+    // intercepting six statement kinds and walking their condition expressions.
+    private static readonly ImmutableArray<SyntaxKind> BinaryComparisons = ImmutableArray.Create(
+        SyntaxKind.EqualsExpression,
+        SyntaxKind.NotEqualsExpression);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(static context => AnalyzeNode(context), SupportedSyntaxKinds);
+        context.RegisterSyntaxNodeAction(AnalyzeComparison, BinaryComparisons);
     }
 
-    private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeComparison(SyntaxNodeAnalysisContext context)
     {
-        var condition = context.Node switch
-        {
-            IfStatementSyntax ifStatement => ifStatement.Condition,
-            ForStatementSyntax forStatement => forStatement.Condition,
-            WhileStatementSyntax whileStatement => whileStatement.Condition,
-            DoStatementSyntax dowhileStatement => dowhileStatement.Condition,
-            ConditionalExpressionSyntax conditionalExpression => conditionalExpression.Condition,
-            ReturnStatementSyntax returnStatement => returnStatement.Expression,
-            _ => null
-        };
-
-        if (condition == null) return;
-
-        foreach (var node in condition.DescendantNodesAndSelf())
-        {
-            if (node is not BinaryExpressionSyntax binaryExpr) continue;
-
-            var left = binaryExpr.Left;
-            var right = binaryExpr.Right;
-
-            if (IsAsExpressionComparedToNull(left, right) || IsAsExpressionComparedToNull(right, left))
-            {
-                var asExpr = (left is BinaryExpressionSyntax lAs && lAs.IsKind(SyntaxKind.AsExpression)) ? lAs
-                    : (right is BinaryExpressionSyntax rAs && rAs.IsKind(SyntaxKind.AsExpression)) ? rAs
-                    : null;
-
-                if (asExpr is not null)
-                    context.ReportDiagnostic(Diagnostic.Create(Descriptor, asExpr.GetLocation()));
-            }
-        }
+        var binaryExpr = (BinaryExpressionSyntax)context.Node;
+        var asExpr = AsExpressionComparedToNull(binaryExpr.Left, binaryExpr.Right)
+                  ?? AsExpressionComparedToNull(binaryExpr.Right, binaryExpr.Left);
+        if (asExpr is not null)
+            context.ReportDiagnostic(Diagnostic.Create(Descriptor, asExpr.GetLocation()));
     }
 
-    private static bool IsAsExpressionComparedToNull(ExpressionSyntax expressionA, ExpressionSyntax expressionB) =>
-        expressionA is BinaryExpressionSyntax binaryExpressionSyntax && binaryExpressionSyntax.IsKind(SyntaxKind.AsExpression) &&
-        expressionB is LiteralExpressionSyntax literalExpressionSyntax &&
-        literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression);
+    private static BinaryExpressionSyntax? AsExpressionComparedToNull(ExpressionSyntax a, ExpressionSyntax b) =>
+        a is BinaryExpressionSyntax asExpr && asExpr.IsKind(SyntaxKind.AsExpression) &&
+        b is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression)
+            ? asExpr
+            : null;
 }

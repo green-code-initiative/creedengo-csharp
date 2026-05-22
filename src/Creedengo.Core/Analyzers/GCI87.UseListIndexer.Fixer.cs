@@ -22,10 +22,10 @@ public sealed class UseListIndexerFixer : CodeFixProvider
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            var parent = root.FindToken(diagnostic.Location.SourceSpan.Start).Parent;
-            if (parent is null) continue;
+            if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } node0)
+                continue;
 
-            foreach (var node in parent.AncestorsAndSelf())
+            foreach (var node in node0.AncestorsAndSelf())
             {
                 if (node is not InvocationExpressionSyntax invocation || invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
                     continue;

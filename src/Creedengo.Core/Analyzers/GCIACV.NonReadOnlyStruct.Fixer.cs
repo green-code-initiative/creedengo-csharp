@@ -22,9 +22,8 @@ public sealed class NonReadOnlyStructFixer : CodeFixProvider
 
         var diagnostic = context.Diagnostics[0];
         var nodeSpan = diagnostic.Location.SourceSpan;
-        var parameter = root.FindToken(nodeSpan.Start)
-            .Parent?
-            .AncestorsAndSelf()
+        var parameter = root.FindNode(nodeSpan, getInnermostNodeForTie: true)
+            ?.AncestorsAndSelf()
             .OfType<ParameterSyntax>()
             .FirstOrDefault();
 
