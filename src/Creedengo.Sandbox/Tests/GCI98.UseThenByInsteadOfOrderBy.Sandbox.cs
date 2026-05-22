@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Creedengo.Sandbox;
+namespace Creedengo.Sandbox.Tests;
 
 // Mirrors GCI98.UseThenByInsteadOfOrderBy.Tests.cs.
 // Lines marked "warns" should light up GCI98 in the IDE; "ok" lines should stay clean.

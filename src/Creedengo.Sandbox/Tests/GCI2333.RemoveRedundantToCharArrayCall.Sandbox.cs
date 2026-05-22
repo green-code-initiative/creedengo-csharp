@@ -1,4 +1,4 @@
-namespace Creedengo.Sandbox;
+namespace Creedengo.Sandbox.Tests;
 
 // Mirrors GCI2333.RemoveRedundantToCharArrayCall.Tests.cs.
 // Lines marked "warns" should light up GCI2333 in the IDE; "ok" lines should stay clean.

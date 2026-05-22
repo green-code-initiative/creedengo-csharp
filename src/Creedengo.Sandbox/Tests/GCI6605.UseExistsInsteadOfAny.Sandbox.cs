@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Creedengo.Sandbox;
+namespace Creedengo.Sandbox.Tests;
 
 // Mirrors GCI6605.UseExistsInsteadOfAny.Tests.cs.
 // Lines marked "warns" should light up GCI6605 in the IDE; "ok" lines should stay clean.

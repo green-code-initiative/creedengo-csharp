@@ -4,12 +4,10 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+		<NoWarn>${NoWarn};CA1305;CA1508;CA1802;CA1812;CA1822;CA1820;CA1823;CA1852;CA1860;CA2007;CA2012;CS0169;CS0219;CS0414;CS0642;CS0649</NoWarn>
 	</PropertyGroup>
 
-	<!--<PropertyGroup>
-		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-	</PropertyGroup>-->
-	
 	<ItemGroup>
 		<ProjectReference Include="..\Creedengo.Core\Creedengo.Core.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
